@@ -59,9 +59,37 @@ public class Polynomial {
 	 *         is the front of the result polynomial
 	 */
 	public static Node add(Node poly1, Node poly2) {
-		/** COMPLETE THIS METHOD **/
-		// FOLLOWING LINE IS A PLACEHOLDER TO MAKE THIS METHOD COMPILE
-		// CHANGE IT AS NEEDED FOR YOUR IMPLEMENTATION
+		if(poly1 == null)
+			return poly2;
+
+		if(poly2 == null)
+			return poly1;
+
+		while(poly1 != null) {
+			for(Node iter = poly2; iter != null; iter = iter.next) {
+				// case - term has same exponent in poly2 as in poly1
+				if(poly1.term.degree == iter.term.degree) {
+					Term newTerm = new Term(poly1.term.coeff + iter.term.coeff, iter.term.degree);
+					iter.term = newTerm;
+
+					break;
+				}
+
+				// case - last term in poly2, current term is greater than all
+				else if(poly1.term.degree > iter.term.degree && iter.next == null) {
+					poly1.next = new Node(iter.term.coeff, iter.term.degree, null);
+					break;
+				}
+
+				// case - needs to be inserted between two terms
+				else if(poly1.term.degree > iter.term.degree && poly1.term.degree < iter.next.term.degree) {
+					// keep writing
+				}
+			}
+
+			poly1 = poly1.next;
+		}
+
 		return null;
 	}
 	
@@ -90,10 +118,14 @@ public class Polynomial {
 	 * @return Value of polynomial p at x
 	 */
 	public static float evaluate(Node poly, float x) {
-		/** COMPLETE THIS METHOD **/
-		// FOLLOWING LINE IS A PLACEHOLDER TO MAKE THIS METHOD COMPILE
-		// CHANGE IT AS NEEDED FOR YOUR IMPLEMENTATION
-		return 0;
+		float total = 0;
+
+		while(poly.next != null) {
+			total += Math.pow(x, poly.term.degree) * poly.term.coeff;
+			poly = poly.next;
+		}
+
+		return total;
 	}
 	
 	/**

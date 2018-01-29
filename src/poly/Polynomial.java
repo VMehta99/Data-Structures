@@ -58,6 +58,33 @@ public class Polynomial {
 	 * @return A new polynomial which is the sum of the input polynomials - the returned node
 	 *         is the front of the result polynomial
 	 */
+
+	public static Node addSingleTerm(Node poly, Term term) {
+		for(Node iter = poly; iter != null; iter = iter.next) {
+			// case - term has same exponent in poly2 as in poly
+
+			if(poly.term.degree == term.degree) {
+				Term newTerm = new Term(poly.term.coeff + term.coeff, poly.term.degree);
+				poly.term = newTerm;
+
+				break;
+			}
+
+			else if(poly.term.degree < term.degree && poly.next == null) {
+				return poly;
+			}
+
+			else if(poly.term.degree < term.degree && poly.next.term.degree > term.degree) {
+				Node newNode = new Node(term.coeff, term.degree, poly.next);
+				poly.next = newNode;
+
+				break;
+			}
+		}
+
+		return poly;
+	}
+
 	public static Node add(Node poly1, Node poly2) {
 		if(poly1 == null)
 			return poly2;
@@ -66,31 +93,16 @@ public class Polynomial {
 			return poly1;
 
 		while(poly1 != null) {
-			for(Node iter = poly2; iter != null; iter = iter.next) {
-				// case - term has same exponent in poly2 as in poly1
-				if(poly1.term.degree == iter.term.degree) {
-					Term newTerm = new Term(poly1.term.coeff + iter.term.coeff, iter.term.degree);
-					iter.term = newTerm;
+			if(poly2.next == null)
+				poly2.next = poly1;
 
-					break;
-				}
-
-				// case - last term in poly2, current term is greater than all
-				else if(poly1.term.degree > iter.term.degree && iter.next == null) {
-					poly1.next = new Node(iter.term.coeff, iter.term.degree, null);
-					break;
-				}
-
-				// case - needs to be inserted between two terms
-				else if(poly1.term.degree > iter.term.degree && poly1.term.degree < iter.next.term.degree) {
-					// keep writing
-				}
-			}
+			else
+				poly2 = addSingleTerm(poly2, poly1.term);
 
 			poly1 = poly1.next;
 		}
 
-		return null;
+		return poly2;
 	}
 	
 	/**
@@ -112,7 +124,6 @@ public class Polynomial {
 		
 	/**
 	 * Evaluates a polynomial at a given value.
-	 * 
 	 * @param poly Polynomial (front of linked list) to be evaluated
 	 * @param x Value at which evaluation is to be done
 	 * @return Value of polynomial p at x

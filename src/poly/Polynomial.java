@@ -59,30 +59,29 @@ public class Polynomial {
 	 *         is the front of the result polynomial
 	 */
 
-	public static Node addSingleTerm(Node poly, Term term) {
+	private static Node addNode(Node poly, Node add) { // returns step
 		for(Node iter = poly; iter != null; iter = iter.next) {
-			// case - term has same exponent in poly2 as in poly
+			if(iter.term.degree == add.term.degree) {
+				Term newTerm = new Term(iter.term.coeff + add.term.coeff, iter.term.degree);
+				iter.term = newTerm;
 
-			if(poly.term.degree == term.degree) {
-				Term newTerm = new Term(poly.term.coeff + term.coeff, poly.term.degree);
-				poly.term = newTerm;
-
-				break;
+				return iter;
 			}
 
-			else if(poly.term.degree < term.degree && poly.next == null) {
-				return poly;
+			else if(iter.term.degree < add.term.degree && iter.next == null) {
+				iter.next = add;
+				return add;
 			}
 
-			else if(poly.term.degree < term.degree && poly.next.term.degree > term.degree) {
-				Node newNode = new Node(term.coeff, term.degree, poly.next);
-				poly.next = newNode;
+			else if(iter.term.degree < add.term.degree && iter.next.term.degree > add.term.degree) {
+				Node newNode = new Node(add.term.coeff, add.term.degree, iter.next);
+				iter.next = newNode;
 
-				break;
+				return newNode;
 			}
 		}
 
-		return poly;
+		return add; // only case where it would get here is if poly was null to begin with
 	}
 
 	public static Node add(Node poly1, Node poly2) {
@@ -92,12 +91,13 @@ public class Polynomial {
 		if(poly2 == null)
 			return poly1;
 
-		while(poly1 != null) {
-			if(poly2.next == null)
-				poly2.next = poly1;
+		Node step = poly2;
 
-			else
-				poly2 = addSingleTerm(poly2, poly1.term);
+		while(poly1 != null) {
+			step = addNode(step, poly1);
+
+			if(step == poly1)
+				return poly2;
 
 			poly1 = poly1.next;
 		}
@@ -115,11 +115,27 @@ public class Polynomial {
 	 * @return A new polynomial which is the product of the input polynomials - the returned node
 	 *         is the front of the result polynomial
 	 */
+
+	public static Node distribute(Node poly, Node dist) {
+		Node iter = poly;
+
+		while(iter.next != null) {
+			iter.term = new Term(poly.term.coeff * dist.term.coeff, poly.term.degree + dist.term.degree);
+		}
+
+		return poly;
+	}
+
 	public static Node multiply(Node poly1, Node poly2) {
-		/** COMPLETE THIS METHOD **/
-		// FOLLOWING LINE IS A PLACEHOLDER TO MAKE THIS METHOD COMPILE
-		// CHANGE IT AS NEEDED FOR YOUR IMPLEMENTATION
-		return null;
+		Node total = null;
+
+		while(poly1 != null) {
+			total = add(total, distribute(poly2, poly1));
+
+			poly1 = poly1.next;
+		}
+
+		return total;
 	}
 		
 	/**

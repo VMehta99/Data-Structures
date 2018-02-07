@@ -52,7 +52,7 @@ public class Polynomial {
 	 * Returns the sum of two polynomials - DOES NOT change either of the input polynomials.
 	 * The returned polynomial MUST have all new nodes. In other words, none of the nodes
 	 * of the input polynomials can be in the result.
-	 * 
+	 * 1
 	 * @param poly1 First input polynomial (front of polynomial linked list)
 	 * @param poly2 Second input polynomial (front of polynomial linked list
 	 * @return A new polynomial which is the sum of the input polynomials - the returned node
@@ -60,11 +60,17 @@ public class Polynomial {
 	 */
 
 	private static Node addNode(Node poly, Node add) { // returns step
+		if(add.term.coeff == 0)
+			return poly;
+
 		for(Node iter = poly; iter != null; iter = iter.next) {
 			if(iter.term.degree == add.term.degree) {
 				Term newTerm = new Term(iter.term.coeff + add.term.coeff, iter.term.degree);
-				iter.term = newTerm;
 
+				if(newTerm.coeff == 0.0)
+					return iter.next;
+
+				iter.term = newTerm;
 				return iter;
 			}
 
@@ -73,7 +79,8 @@ public class Polynomial {
 				return add;
 			}
 
-			else if(iter.term.degree < add.term.degree && iter.next.term.degree > add.term.degree) {
+			else if(iter.term.degree < add.term.degree &&
+					iter.next.term.degree > add.term.degree) {
 				Node newNode = new Node(add.term.coeff, add.term.degree, iter.next);
 				iter.next = newNode;
 
@@ -117,27 +124,37 @@ public class Polynomial {
 	 */
 
 	public static Node distribute(Node poly, Node dist) {
-		Node iter = poly;
+		Node ret = new Node(poly.term.coeff * dist.term.coeff, poly.term.degree + dist.term.degree, null), iter = ret;
+		poly= poly.next;
 
-		while(iter.next != null) {
-			iter.term = new Term(poly.term.coeff * dist.term.coeff, poly.term.degree + dist.term.degree);
+		while(poly != null) {
+			iter.next = new Node(poly.term.coeff * dist.term.coeff, poly.term.degree + dist.term.degree, null);
+
+			iter = iter.next;
+			poly = poly.next;
 		}
 
-		return poly;
+		return ret;
 	}
 
 	public static Node multiply(Node poly1, Node poly2) {
 		Node total = null;
 
 		while(poly1 != null) {
-			total = add(total, distribute(poly2, poly1));
+			Node x = distribute(poly2, poly1);
+			System.out.println(toString(x));
 
+			System.out.println("Before total: " + toString(total));
+			total = add(total, x);
+			System.out.println("After total: " + toString(total));
+
+			System.out.println();
 			poly1 = poly1.next;
 		}
 
 		return total;
 	}
-		
+
 	/**
 	 * Evaluates a polynomial at a given value.
 	 * @param poly Polynomial (front of linked list) to be evaluated
@@ -147,7 +164,7 @@ public class Polynomial {
 	public static float evaluate(Node poly, float x) {
 		float total = 0;
 
-		while(poly.next != null) {
+		while(poly != null) {
 			total += Math.pow(x, poly.term.degree) * poly.term.coeff;
 			poly = poly.next;
 		}

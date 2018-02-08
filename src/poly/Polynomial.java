@@ -58,6 +58,24 @@ public class Polynomial {
 	 * @return A new polynomial which is the sum of the input polynomials - the returned node
 	 *         is the front of the result polynomial
 	 */
+	public static Node removeZeros(Node front) {
+		while(front.term.coeff == 0)
+			front = front.next;
+
+		Node prev = front, iter = front.next;
+
+		while(iter != null) {
+			if(iter.term.coeff == 0) {
+				prev.next = iter.next;
+				iter = iter.next;
+			} else {
+				prev = prev.next;
+				iter = iter.next;
+			}
+		}
+
+		return front;
+	}
 
 	private static Node addNode(Node poly, Node add) { // returns step
 		if(add.term.coeff == 0)
@@ -66,9 +84,6 @@ public class Polynomial {
 		for(Node iter = poly; iter != null; iter = iter.next) {
 			if(iter.term.degree == add.term.degree) {
 				Term newTerm = new Term(iter.term.coeff + add.term.coeff, iter.term.degree);
-
-				if(newTerm.coeff == 0.0)
-					return iter.next;
 
 				iter.term = newTerm;
 				return iter;
@@ -101,7 +116,10 @@ public class Polynomial {
 		Node step = poly2;
 
 		while(poly1 != null) {
-			step = addNode(step, poly1);
+			if(poly1.term.degree < poly2.term.degree)
+				poly2 = new Node(poly1.term.coeff, poly1.term.degree, poly2);
+			else
+				step = addNode(step, poly1);
 
 			if(step == poly1)
 				return poly2;
@@ -109,7 +127,7 @@ public class Polynomial {
 			poly1 = poly1.next;
 		}
 
-		return poly2;
+		return removeZeros(poly2);
 	}
 	
 	/**
@@ -144,8 +162,8 @@ public class Polynomial {
 			Node x = distribute(poly2, poly1);
 			System.out.println(toString(x));
 
-			System.out.println("Before total: " + toString(total));
-			total = add(total, x);
+			System.out.println("Before total: " + toString(total) + "\nx-value: " + toString(x));
+			total = add(x, total);
 			System.out.println("After total: " + toString(total));
 
 			System.out.println();

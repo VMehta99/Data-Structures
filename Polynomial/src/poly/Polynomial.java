@@ -59,8 +59,11 @@ public class Polynomial {
 	 *         is the front of the result polynomial
 	 */
 	public static Node removeZeros(Node front) {
-		while(front.term.coeff == 0)
+		while(front != null && front.term.coeff == 0)
 			front = front.next;
+
+		if(front == null)
+			return null;
 
 		Node prev = front, iter = front.next;
 
@@ -116,10 +119,7 @@ public class Polynomial {
 		Node step = poly2;
 
 		while(poly1 != null) {
-			if(poly1.term.degree < poly2.term.degree)
-				poly2 = new Node(poly1.term.coeff, poly1.term.degree, poly2);
-			else
-				step = addNode(step, poly1);
+			step = addNode(step, poly1);
 
 			if(step == poly1)
 				return poly2;

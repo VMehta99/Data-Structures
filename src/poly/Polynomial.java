@@ -159,14 +159,7 @@ public class Polynomial {
 		Node total = null;
 
 		while(poly1 != null) {
-			Node x = distribute(poly2, poly1);
-			System.out.println(toString(x));
-
-			System.out.println("Before total: " + toString(total) + "\nx-value: " + toString(x));
-			total = add(x, total);
-			System.out.println("After total: " + toString(total));
-
-			System.out.println();
+			total = add(distribute(poly2, poly1), total);
 			poly1 = poly1.next;
 		}
 

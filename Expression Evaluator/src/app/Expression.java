@@ -21,12 +21,32 @@ public class Expression {
      * @param vars The variables array list - already created by the caller
      * @param arrays The arrays array list - already created by the caller
      */
-    public static void 
+
+    public static void
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-    	/** COMPLETE THIS METHOD **/
-    	/** DO NOT create new vars and arrays - they are already created before being sent in
-    	 ** to this method - you just need to fill them in.
-    	 **/
+        for(int i = 0; i < expr.toCharArray().length; i++) {
+            if(delims.contains(Character.toString(expr.toCharArray()[i])))
+                continue;
+
+            else if(i < expr.length() && expr.charAt(i + 1) == '[') {
+                // find last space
+                int j = i;
+
+                while(j > 0 && expr.toCharArray()[j] != ' ')
+                    j--;
+
+                if(!arrays.contains(expr.substring(j + 1, i + 1)))
+                    arrays.add(new Array(expr.substring(j + 1, i + 1)));
+            }
+
+            else if(i == (expr.length() - 1) || expr.charAt(i + 1) == ' ') {
+                while(j > 0 && expr.toCharArray()[j] != ' ')
+                    j--;
+
+                if(!vars.contains(expr.substring(j + 1, i + 1)))
+                    vars.add(new Variable(expr.substring(j + 1, i + 1)));
+            }
+        }
     }
     
     /**

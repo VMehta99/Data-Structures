@@ -40,6 +40,8 @@ public class Expression {
             }
 
             else if(i == (expr.length() - 1) || expr.charAt(i + 1) == ' ') {
+                int j = i;
+
                 while(j > 0 && expr.toCharArray()[j] != ' ')
                     j--;
 

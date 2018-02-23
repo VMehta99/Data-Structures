@@ -24,31 +24,28 @@ public class Expression {
 
     public static void
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        for(int i = 0; i < expr.toCharArray().length; i++) {
-            if(delims.contains(Character.toString(expr.toCharArray()[i])))
-                continue;
+        StringTokenizer st = new StringTokenizer(expr, " \t*+-/()");
 
-            else if(i < (expr.length() - 1) && expr.charAt(i + 1) == '[') {
-                // find last space
-                int j = i;
+        while(st.hasMoreTokens()) {
+            String str = st.nextToken();
 
-                while(j > 0 && expr.toCharArray()[j] != ' ')
-                    j--;
+            if(str.contains("[")) {
+                String[] splitter = str.split("\\[");
 
-                if(!arrays.contains(new Array(expr.substring(j + 1, i + 1))))
-                    arrays.add(new Array(expr.substring(j + 1, i + 1)));
+                for(int i = 0; i < splitter.length; i++) {
+                    if(i == (splitter.length - 1))
+                        vars.add(new Variable(splitter[i]));
+
+                    else
+                        arrays.add(new Array(splitter[i]));
+                }
             }
 
-            else if(i == (expr.length() - 1) || expr.charAt(i + 1) == ' ') {
-                int j = i;
-
-                while(j > 0 && expr.toCharArray()[j] != ' ')
-                    j--;
-
-                if(!vars.contains(new Variable(expr.substring(j + 1, i + 1))))
-                    vars.add(new Variable(expr.substring(j + 1, i + 1)));
-            }
+            else
+                vars.add(new Variable(str.replaceAll("]", "")));
         }
+
+        System.out.println("Variables: " + Arrays.toString(vars.toArray()) + "\nArrays: " + Arrays.toString(arrays.toArray()));
     }
     
     /**
@@ -98,7 +95,7 @@ public class Expression {
      * @param arrays The arrays array list, with values for all array items
      * @return Result of evaluation
      */
-    private static int findValue(String name) {
+    private static int findValue(String name, ArrayList<Variable> vars) {
         for(Variable v : vars)
             if(v.name.equals(name))
                 return v.value;
@@ -106,47 +103,16 @@ public class Expression {
         return Integer.MIN_VALUE;
     }
 
-    private static int[] findArray(String name) {
+    private static int[] findArray(String name, ArrayList<Array> arrays) {
         for(Array a : arrays)
             if(a.name.equals(name))
-                return a.value;
+                return a.values;
 
         return null;
     }
 
     public static float
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        Stack<String> operations = new Stack<String>();
-        Stack<Integer> data = new Stack<Integer>();
-
-        String ops = "+-*/";
-        expr = expr.replaceAll(" ", "");
-
-        while(expr.length() != 0) {
-            int i = 0;
-
-            while(expr.charAt(i) != '(' &&
-                    expr.charAt(i) != '[' &&
-                    !ops.contains(Character.toString(i)))
-                i++;
-
-            if(expr.charAt(i) == '[') {
-                data.push(findArray(expr.substring(i))[(int) evaluate(expr.substring(i + 1, expr.indexOf("]")), vars, arrays)]);
-                expr = expr.substring(expr.indexOf("]") + 1);
-            }
-
-            else if(ops.contains(Character.toString(expr.charAt(i)))) {
-                data.push(findValue(expr.substring(i - 1)));
-                operations.push(Character.toString(expr.charAt(i)));
-            }
-
-            else {
-                // code to evaluate normal cases
-            }
-
-        }
-
-        // evaluate stacks
 
     	return 0;
     }

@@ -11,7 +11,24 @@ public class Evaluator {
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException {
-		Scanner sc = new Scanner(System.in);
+		Scanner s = new Scanner(System.in);
+
+		ArrayList<Variable> vars = new ArrayList<Variable>();
+		ArrayList<Array> arrays = new ArrayList<Array>();
+
+		Expression.makeVariableLists(s.nextLine(), vars, arrays);
+
+		/*System.out.println("Variables: ");
+
+		for(Variable v : vars)
+			System.out.println(v);
+
+		System.out.println("Arrays: ");
+
+		for(Array a : arrays)
+			System.out.println(a);*/
+
+		/*Scanner sc = new Scanner(System.in);
 
 		while (true) {
 			System.out.print("\nEnter the expression, or hit return to quit => ");
@@ -31,6 +48,6 @@ public class Evaluator {
 			}
 			System.out.println("Value of expression = " + Expression.evaluate(expr,vars,arrays));
 		}
-		sc.close();
+		sc.close();*/
 	}
 }

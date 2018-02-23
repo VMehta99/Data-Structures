@@ -16,7 +16,7 @@ public class Evaluator {
 		ArrayList<Variable> vars = new ArrayList<Variable>();
 		ArrayList<Array> arrays = new ArrayList<Array>();
 
-		Expression.makeVariableLists(s.nextLine(), vars, arrays);
+		Expression.evaluate(s.nextLine(), vars, arrays);
 
 		/*System.out.println("Variables: ");
 

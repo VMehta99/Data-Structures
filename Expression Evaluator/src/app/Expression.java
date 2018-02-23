@@ -29,23 +29,24 @@ public class Expression {
         while(st.hasMoreTokens()) {
             String str = st.nextToken();
 
+            // if it's an array - account for possibility of nested arrays
             if(str.contains("[")) {
                 String[] splitter = str.split("\\[");
 
                 for(int i = 0; i < splitter.length; i++) {
-                    if(i == (splitter.length - 1))
+                    if(i == (splitter.length - 1) &&
+                            !vars.contains(new Variable(splitter[i])))
                         vars.add(new Variable(splitter[i]));
 
-                    else
+                    else if(!arrays.contains(new Array(splitter[i])))
                         arrays.add(new Array(splitter[i]));
                 }
             }
 
-            else
+            // add variable if it's not already there
+            else if(!vars.contains(new Variable(str.replaceAll("]", ""))))
                 vars.add(new Variable(str.replaceAll("]", "")));
         }
-
-        System.out.println("Variables: " + Arrays.toString(vars.toArray()) + "\nArrays: " + Arrays.toString(arrays.toArray()));
     }
     
     /**
@@ -95,24 +96,83 @@ public class Expression {
      * @param arrays The arrays array list, with values for all array items
      * @return Result of evaluation
      */
-    private static int findValue(String name, ArrayList<Variable> vars) {
+
+    public static int getValue(String name) {
         for(Variable v : vars)
             if(v.name.equals(name))
                 return v.value;
 
-        return Integer.MIN_VALUE;
+        return 0;
     }
 
-    private static int[] findArray(String name, ArrayList<Array> arrays) {
-        for(Array a : arrays)
-            if(a.name.equals(name))
-                return a.values;
+    public static int[] getArray(String name) {
+        for(Array v : arrays)
+            if(v.name.equals(name))
+                return v.values;
 
         return null;
     }
 
     public static float
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
+        Stack<Integer> values = new Stack<Integer>();
+        Stack<Character> ops = new Stack<Character>();
+
+        expr = expr.replaceAll(" ", "");
+        StringTokenizer st = new StringTokenizer(expr, delims;
+
+        for(int i = 0; i < expr.length(); i++) {
+            String instance = st.nextToken();
+            int value = 0;
+            char op = ' ';
+
+            if(expr.indexOf(instance) > 0 &&
+                    expr.charAt(expr.indexOf(instance) - 1) == '(') {
+                int start = expr.indexOf(instance), end = start + 1, numParentheses = 1;
+
+                // check for end of subexpression
+                for(; end < expr.length() && numParentheses > 0; end++) {
+                    if(expr.charAt(end) == '(')
+                        numParentheses++;
+                    else if(expr.charAt(end) == ')')
+                        numParentheses--;
+                }
+
+                value = Integer.valueOf((int)evaluate(expr.substring(start + 1, end), vars, arrays));
+
+                if(end < expr.length() - 1)
+                    op = expr.charAt(end + 1);
+
+                expr = expr.substring(end + 1);
+            } else if(expr.charAt(expr.indexOf(instance) + instance.length()) == '[') {
+                int start = expr.indexOf(instance) + instance.length(), end = start + 1, numBrackets = 1;
+
+                for(; end < expr.length() && numBrackets > 0; end++) {
+                    if(expr.charAt(end) == '[')
+                        numBrackets++;
+                    else if(expr.charAt(end) == ']')
+                        numBrackets--;
+                }
+
+                value = Integer.valueOf(getArray(instance)[(int)evaluate(expr.substring(start + 1, end), vars, arrays)]);
+
+                if(end < expr.length() - 1)
+                    op = expr.charAt(end + 1);
+            } else {
+                value = getValue(instance);
+                int someMeaningfulVariableName = expr.indexOf(instance) + instance.length();
+
+                if(someMeaningfulVariableName < expr.length())
+                    op = expr.charAt(someMeaningfulVariableName);
+
+                expr = expr.substring(someMeaningfulVariableName - 1);
+            }
+
+            if((op == '*' || op == '/') &&
+                    (ops.peek().equals('+') || ops.peek().equals('-'))) {
+
+            }
+        }
 
     	return 0;
     }

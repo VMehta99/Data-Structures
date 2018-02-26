@@ -22,6 +22,16 @@ public class Expression {
      * @param arrays The arrays array list - already created by the caller
      */
 
+    public static boolean isNumeric(String str) {
+        try {
+            double d = Double.parseDouble(str);
+        } catch(NumberFormatException nfe) {
+            return false;
+        }
+
+        return true;
+    }
+
     public static void
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
         StringTokenizer st = new StringTokenizer(expr, " \t*+-/()");
@@ -30,22 +40,27 @@ public class Expression {
             String str = st.nextToken();
 
             // if it's an array - account for possibility of nested arrays
-            if(str.contains("[")) {
-                String[] splitter = str.split("\\[");
+            try {
+                Double.parseDouble(str);
+            } catch(NumberFormatException e) {
+                if (str.contains("[")) {
+                    String[] splitter = str.split("\\[");
 
-                for(int i = 0; i < splitter.length; i++) {
-                    if(i == (splitter.length - 1) &&
-                            !vars.contains(new Variable(splitter[i])))
-                        vars.add(new Variable(splitter[i]));
-
-                    else if(!arrays.contains(new Array(splitter[i])))
-                        arrays.add(new Array(splitter[i]));
+                    for (int i = 0; i < splitter.length; i++) {
+                        if (isNumeric(splitter[i])) // a number is not a variable
+                            continue;
+                        else if (i == (splitter.length - 1) &&
+                                !vars.contains(new Variable(splitter[i])))
+                            vars.add(new Variable(splitter[i]));
+                        else if (!arrays.contains(new Array(splitter[i])))
+                            arrays.add(new Array(splitter[i]));
+                    }
                 }
-            }
 
-            // add variable if it's not already there
-            else if(!vars.contains(new Variable(str.replaceAll("]", ""))))
-                vars.add(new Variable(str.replaceAll("]", "")));
+                // add variable if it's not already there
+                else if (!vars.contains(new Variable(str.replaceAll("]", ""))))
+                    vars.add(new Variable(str.replaceAll("]", "")));
+            }
         }
     }
     
@@ -97,7 +112,7 @@ public class Expression {
      * @return Result of evaluation
      */
 
-    public static int getValue(String name) {
+    public static int getValue(String name, ArrayList<Variable> vars) {
         for(Variable v : vars)
             if(v.name.equals(name))
                 return v.value;
@@ -105,7 +120,7 @@ public class Expression {
         return 0;
     }
 
-    public static int[] getArray(String name) {
+    public static int[] getArray(String name, ArrayList<Array> arrays) {
         for(Array v : arrays)
             if(v.name.equals(name))
                 return v.values;
@@ -118,94 +133,116 @@ public class Expression {
                 (value.indexOf("(") < value.indexOf("["));
     }
 
+    public static double applyOp(double a, double b, char op) {
+        switch(op) {
+            case '+': return a + b;
+            case '-': return a - b;
+            case '*': return a * b;
+            case '/': return b / a;
+        }
+
+        return 0;
+    }
+
     public static float
     evaluate(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        Stack<Double> nums = new Stack<Double>();
-        Stack<Character> ops = new Stack<Character>();
+        Stack<Double> nums = new Stack<>();
+        Stack<Character> ops = new Stack<>();
 
-        expr = expr.replaceAll(" ", "");
+        expr = expr.replaceAll(" ", "").replaceAll("\t", "");
 
-
-        // pushes with add/multiply out of order
         while(!expr.equals("")) {
-            String str = expr.split("+-*/")[0];
+            String str = "";
+            String[] strArray = expr.split("[\\*\\+\\-\\/]");
+
+            for(String s : strArray)
+                if(!s.equals("")) {
+                    str = s;
+                    break;
+                }
 
             try {
-                vars.push(Double.parseDouble(str));
+                nums.push(Double.parseDouble(str));
 
                 if(expr.indexOf(str) != 0)
                     ops.push(expr.charAt(0));
-            } catch(NumberFormatException e) {
-                if(str.contains("(")) {
-                    if(parenBeforeExp(term)) {
-                        int start = term.indexOf("("), end = start + 1, numParen = 1;
 
-                        for(; end < term.length() && numParen > 0; end++) {
-                            if(term.charAt(end) == '(')
+                expr = expr.substring(expr.indexOf(str) + str.length());
+           } catch(NumberFormatException e) {
+                if(str.contains("(")) {
+                    if(parenBeforeExp(expr)) {
+                        int start = expr.indexOf("("), end = start + 1, numParen = 1;
+
+                        for(; end < expr.length() && numParen > 0; end++) {
+                            if(expr.charAt(end) == '(')
                                 numParen++;
-                            else if(term.charAt(end) == ')')
+                            else if(expr.charAt(end) == ')')
                                 numParen--;
                         }
 
-                        nums.push(evaluate(expr.substring(start + 1, end), vars, arrays));
+                        if(end >= expr.length())
+                            end--;
+
+                        nums.push((double) evaluate(expr.substring(start + 1, end), vars, arrays));
 
                         if(expr.indexOf(str) > 0)
                             ops.push(expr.charAt(expr.indexOf(str) - 1));
 
-                        expr = expr.substring(end + 1);
-                    } else {
-                        int start = term.indexOf("["), end = start + 1, numBrackets = 1;
-
-                        for(; end < term.length() && numBrackets > 0; end++) {
-                            if(term.charAt(end) == '[')
-                                numBrackets++;
-                            else if(term.charAt(end) == ']')
-                                numBrackets--;
-                        }
-
-                        nums.push(getArray(str.substring(0, start))[(int) evaluate(expr.substring(start + 1, end))]);
-
-                        if(expr.indexOf(str) > 0)
-                            ops.push(expr.charAt(expr.indexOf(str) - 1));
-
-                        expr = expr.substring(end + 1);
+                        expr = (end < expr.length() - 1) ? expr.substring(end + 1) : "";
                     }
                 } else if(str.contains("[")) {
                     int start = expr.indexOf("["), end = start + 1, numBrackets = 1;
 
-                    for (; end < term.length() && numBrackets > 0; end++) {
+                    for (; end < expr.length() && numBrackets > 0; end++) {
                         if (expr.charAt(end) == '[')
                             numBrackets++;
                         else if (expr.charAt(end) == ']')
                             numBrackets--;
                     }
 
-                    nums.push(getArray(str.substring(0, start))[(int) evaluate(expr.substring(start + 1, end), vars, arrays)]);
+                    if(end == expr.length()) end--;
+
+                    nums.push((double) getArray(str.substring(0, start), arrays)[(int) evaluate(expr.substring(start + 1, end), vars, arrays)]);
 
                     if(expr.indexOf(str) > 0)
                         ops.push(expr.charAt(expr.indexOf(str) - 1));
 
                     expr = expr.substring(end + 1);
                 } else {
-                    nums.push((double) getValue(str));
+                    nums.push((double) getValue(str, vars));
 
                     if(expr.indexOf(str) > 0)
                         ops.push(expr.charAt(expr.indexOf(str) - 1));
 
-                    expr = expr.substring(expr.indexOf(str) + expr.length());
+                    expr = expr.substring(expr.indexOf(str) + str.length());
                 }
-            }
-
-            // reorder stacks
-
-            Stack<Double> newNums = new Stack<Integer>();
-            Stack<Character> newOps = new Stack<Character>();
-
-            while(ops.size() != 0) {
-                // write some code, you degenerate
             }
         }
 
-    	return 0;
+        Stack<Double> newNums = new Stack<>();
+        Stack<Character> newOps = new Stack<>();
+
+        // evaluate all multiplication-precedence operations
+        while(!ops.isEmpty()) {
+            if(ops.peek() == '*' ||
+                    ops.peek() == '/')
+                newNums.push(applyOp(nums.pop(), nums.pop(), ops.pop()));
+
+            else {
+                newNums.push(nums.pop());
+                newOps.push(ops.pop());
+            }
+        }
+
+        while(!nums.isEmpty())
+            newNums.push(nums.pop());
+
+        nums = newNums;
+        ops = newOps;
+
+        while(!ops.isEmpty())
+            nums.push(applyOp((nums.size() == 1) ? 0 : nums.pop(), nums.pop(), ops.pop()));
+
+    	return (float)Double.parseDouble(nums.pop().toString());
     }
 }

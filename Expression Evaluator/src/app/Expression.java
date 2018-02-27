@@ -39,7 +39,6 @@ public class Expression {
         while(st.hasMoreTokens()) {
             String str = st.nextToken();
 
-            // if it's an array - account for possibility of nested arrays
             try {
                 Double.parseDouble(str);
             } catch(NumberFormatException e) {
@@ -48,24 +47,7 @@ public class Expression {
                         !arrays.contains(new Array(str)))
                     arrays.add(new Array(str));
                 else if(!vars.contains(new Variable(str)))
-                    vars.add(new Variable(str));
-                /*if (str.contains("[")) {
-                    String[] splitter = str.split("\\[");
-
-                    for (int i = 0; i < splitter.length; i++) {
-                        if (isNumeric(splitter[i])) // a number is not a variable
-                            continue;
-                        else if (i == (splitter.length - 1) &&
-                                !vars.contains(new Variable(splitter[i])))
-                            vars.add(new Variable(splitter[i]));
-                        else if (!arrays.contains(new Array(splitter[i])))
-                            arrays.add(new Array(splitter[i]));
-                    }
-                }
-
-                // add variable if it's not already there
-                else if (!vars.contains(new Variable(str.replaceAll("]", ""))))
-                    vars.add(new Variable(str.replaceAll("]", "").replaceAll(")", "")));*/
+                    vars.add(new Variable(str)); 
             }
         }
     }
@@ -118,7 +100,7 @@ public class Expression {
      * @return Result of evaluation
      */
 
-    public static int getValue(String name, ArrayList<Variable> vars) {
+    private static int getValue(String name, ArrayList<Variable> vars) {
         for(Variable v : vars)
             if(v.name.equals(name))
                 return v.value;
@@ -126,7 +108,7 @@ public class Expression {
         return 0;
     }
 
-    public static int[] getArray(String name, ArrayList<Array> arrays) {
+    private static int[] getArray(String name, ArrayList<Array> arrays) {
         for(Array v : arrays)
             if(v.name.equals(name))
                 return v.values;
@@ -134,19 +116,19 @@ public class Expression {
         return null;
     }
 
-    public static boolean parenBeforeExp(String value) {
+    private static boolean parenBeforeExp(String value) {
         return (!value.contains("[")) ||
                 (value.indexOf("(") < value.indexOf("["));
     }
 
-    public static boolean hasPrecedence(char op1, char op2) {
+    private static boolean hasPrecedence(char op1, char op2) {
         if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
             return false;
         else
             return true;
     }
 
-    public static double applyOp(double a, double b, char op) {
+    private static double applyOp(double a, double b, char op) {
         switch(op) {
             case '+': return a + b;
             case '-': return a - b;

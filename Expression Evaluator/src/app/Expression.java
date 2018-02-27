@@ -34,7 +34,7 @@ public class Expression {
 
     public static void
     makeVariableLists(String expr, ArrayList<Variable> vars, ArrayList<Array> arrays) {
-        StringTokenizer st = new StringTokenizer(expr, " \t*+-/()");
+        StringTokenizer st = new StringTokenizer(expr, delims);
 
         while(st.hasMoreTokens()) {
             String str = st.nextToken();
@@ -43,7 +43,13 @@ public class Expression {
             try {
                 Double.parseDouble(str);
             } catch(NumberFormatException e) {
-                if (str.contains("[")) {
+                if((expr.indexOf(str) + str.length()) < expr.length() &&
+                        expr.charAt(expr.indexOf(str) + str.length()) == '[' &&
+                        !arrays.contains(new Array(str)))
+                    arrays.add(new Array(str));
+                else if(!vars.contains(new Variable(str)))
+                    vars.add(new Variable(str));
+                /*if (str.contains("[")) {
                     String[] splitter = str.split("\\[");
 
                     for (int i = 0; i < splitter.length; i++) {
@@ -59,7 +65,7 @@ public class Expression {
 
                 // add variable if it's not already there
                 else if (!vars.contains(new Variable(str.replaceAll("]", ""))))
-                    vars.add(new Variable(str.replaceAll("]", "")));
+                    vars.add(new Variable(str.replaceAll("]", "").replaceAll(")", "")));*/
             }
         }
     }
@@ -133,12 +139,19 @@ public class Expression {
                 (value.indexOf("(") < value.indexOf("["));
     }
 
+    public static boolean hasPrecedence(char op1, char op2) {
+        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-'))
+            return false;
+        else
+            return true;
+    }
+
     public static double applyOp(double a, double b, char op) {
         switch(op) {
             case '+': return a + b;
             case '-': return a - b;
             case '*': return a * b;
-            case '/': return b / a;
+            case '/': return (a == 0) ? 0 : b / a;
         }
 
         return 0;
@@ -152,96 +165,124 @@ public class Expression {
         expr = expr.replaceAll(" ", "").replaceAll("\t", "");
 
         while(!expr.equals("")) {
+            double num = 0;
+            char op = ' ';
+
             String str = "";
             String[] strArray = expr.split("[\\*\\+\\-\\/]");
 
-            for(String s : strArray)
-                if(!s.equals("")) {
+            for (String s : strArray)
+                if (!s.equals("")) {
                     str = s;
                     break;
                 }
 
             try {
-                nums.push(Double.parseDouble(str));
+                num = Double.parseDouble(str);
 
-                if(expr.indexOf(str) != 0)
-                    ops.push(expr.charAt(0));
+                if (expr.indexOf(str) > 0)
+                    op = expr.charAt(0);
 
                 expr = expr.substring(expr.indexOf(str) + str.length());
-           } catch(NumberFormatException e) {
-                if(str.contains("(")) {
-                    if(parenBeforeExp(expr)) {
+            } catch (NumberFormatException e) {
+                if (str.contains("(")) {
+                    if (parenBeforeExp(expr)) {
                         int start = expr.indexOf("("), end = start + 1, numParen = 1;
 
-                        for(; end < expr.length() && numParen > 0; end++) {
-                            if(expr.charAt(end) == '(')
+                        for (; end < expr.length(); end++) {
+                            if (expr.charAt(end) == '(')
                                 numParen++;
-                            else if(expr.charAt(end) == ')')
+                            else if (expr.charAt(end) == ')')
                                 numParen--;
+
+                            if (numParen <= 0)
+                                break;
                         }
 
-                        if(end >= expr.length())
+                        if (end >= expr.length())
                             end--;
 
-                        nums.push((double) evaluate(expr.substring(start + 1, end), vars, arrays));
+                        num = (double) evaluate(expr.substring(start + 1, end), vars, arrays);
 
-                        if(expr.indexOf(str) > 0)
-                            ops.push(expr.charAt(expr.indexOf(str) - 1));
+                        if (expr.indexOf(str) > 0)
+                            op = expr.charAt(expr.indexOf(str) - 1);
 
                         expr = (end < expr.length() - 1) ? expr.substring(end + 1) : "";
                     }
-                } else if(str.contains("[")) {
-                    int start = expr.indexOf("["), end = start + 1, numBrackets = 1;
+                } else if (str.contains("[")) {
+                    int start = expr.indexOf("["), end = start + 1, numbrackets = 1;
 
-                    for (; end < expr.length() && numBrackets > 0; end++) {
+                    for (; end < expr.length() && numbrackets > 0; end++) {
                         if (expr.charAt(end) == '[')
-                            numBrackets++;
+                            numbrackets++;
                         else if (expr.charAt(end) == ']')
-                            numBrackets--;
+                            numbrackets--;
                     }
 
-                    if(end == expr.length()) end--;
+                    if (end >= expr.length() ||
+                            expr.charAt(end) != ']')
+                        end--;
 
-                    nums.push((double) getArray(str.substring(0, start), arrays)[(int) evaluate(expr.substring(start + 1, end), vars, arrays)]);
+                    num = (double) getArray(expr.substring((expr.charAt(0) == '+' || expr.charAt(0) == '-' || expr.charAt(0) == '*' || expr.charAt(0) == '/') ? 1 : 0, start), arrays)[(int) evaluate(expr.substring(start + 1, end), vars, arrays)];
 
-                    if(expr.indexOf(str) > 0)
-                        ops.push(expr.charAt(expr.indexOf(str) - 1));
+                    if (expr.indexOf(str) > 0)
+                        op = expr.charAt(expr.indexOf(str) - 1);
 
                     expr = expr.substring(end + 1);
                 } else {
-                    nums.push((double) getValue(str, vars));
+                    num = (double) getValue(str, vars);
 
-                    if(expr.indexOf(str) > 0)
-                        ops.push(expr.charAt(expr.indexOf(str) - 1));
+                    if (expr.indexOf(str) > 0)
+                        op = expr.charAt(expr.indexOf(str) - 1);
 
                     expr = expr.substring(expr.indexOf(str) + str.length());
                 }
             }
+
+            nums.push(num);
+
+            if (op == '*')
+                nums.push(nums.pop() * nums.pop());
+            else if (op == '/')
+                nums.push((1 / nums.pop()) * nums.pop());
+            else if(op != ' ')
+                ops.push(op);
         }
 
-        Stack<Double> newNums = new Stack<>();
-        Stack<Character> newOps = new Stack<>();
+        // reverse stacks, then execute in reading order
+        Stack<Double> reverseNums = new Stack<>();
+        Stack<Character> reverseOps = new Stack<>();
 
-        // evaluate all multiplication-precedence operations
-        while(!ops.isEmpty()) {
-            if(ops.peek() == '*' ||
-                    ops.peek() == '/')
-                newNums.push(applyOp(nums.pop(), nums.pop(), ops.pop()));
+        while(!ops.isEmpty())
+            reverseOps.push(ops.pop());
 
-            else {
-                newNums.push(nums.pop());
-                newOps.push(ops.pop());
+        while(!nums.isEmpty())
+            reverseNums.push(nums.pop());
+
+        nums = reverseNums;
+        ops = reverseOps;
+
+        while(!ops.isEmpty() &&
+                nums.size() >= 2) {
+            if (ops.peek() == '+') {
+                nums.push(nums.pop() + nums.pop());
+                ops.pop();
+            } else if (ops.peek() == '-') {
+                nums.push(nums.pop() - nums.pop());
+                ops.pop();
+            } else if (ops.peek() == '*') {
+                nums.push(nums.pop() * nums.pop());
+                ops.pop();
+            } else {
+                nums.push(nums.pop() / nums.pop());
+                ops.pop();
             }
         }
 
-        while(!nums.isEmpty())
-            newNums.push(nums.pop());
-
-        nums = newNums;
-        ops = newOps;
-
-        while(!ops.isEmpty())
-            nums.push(applyOp((nums.size() == 1) ? 0 : nums.pop(), nums.pop(), ops.pop()));
+        if(ops.size() == 1 &&
+                ops.peek() == '-' &&
+                nums.size() == 1)
+            return (float) (-1 * Double.parseDouble(nums.pop().toString()));
 
     	return (float)Double.parseDouble(nums.pop().toString());
     }

@@ -54,7 +54,7 @@ public class Test {
 		expect(arrays.get(1).name, "B");
 		expect(vars.size(), 3);
 		expect(arrays.size(), 2);
-		Expression.loadVariableValues(new Scanner(new File("../../etest1.txt")), vars, arrays);
+		Expression.loadVariableValues(new Scanner(new File("/home/hamoor/Data-Structures/Expression Evaluator/etest1.txt")), vars, arrays);
 		expect(Expression.evaluate("a", vars, arrays), (float) 3);
 		expect(Expression.evaluate("b", vars, arrays), (float) 2);
 		expect(Expression.evaluate("d", vars, arrays), (float) 56);

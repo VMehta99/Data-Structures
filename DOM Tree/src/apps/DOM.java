@@ -11,7 +11,7 @@ public class DOM {
 
 	static Scanner stdin = new Scanner(System.in);
 	static String options = "hprbdaq";
-	
+
 	static char getOption() {
 		System.out.print("\nChoose action: ");
 		System.out.print("(p)rint Tree, ");
@@ -28,40 +28,59 @@ public class DOM {
 		}
 		return response;
 	}
-	
+
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) 
-	throws IOException {
-		// some comment I'm going to push
+	public static void main(String[] args)
+			throws IOException {
 		// TODO Auto-generated method stub
 		System.out.print("Enter HTML file name => ");
 		String htmlFile = stdin.nextLine();
 		Tree tree = new Tree(new Scanner(new File(htmlFile)));
 		tree.build();
-		
+
 		char option;
 		while ((option = getOption()) != 'q') {
 			System.out.println();
 			if (option == 'h') {
 				System.out.print(tree.getHTML());
 			} else if (option == 'p') {
-					tree.print();
+				tree.print();
 			} else if (option == 'r') {
 				System.out.print("\tEnter old tag => ");
-				String oldTag = stdin.nextLine();
+				String oldTag = stdin.next();
 				System.out.print("\tEnter new tag => ");
-				String newTag = stdin.nextLine();
+				String newTag = stdin.next();
 				tree.replaceTag(oldTag, newTag);
-			} else if (option == 'b')  else if (option == 'd') {
+			} else if (option == 'b') {
+				System.out.print("\tEnter row number (1..n) => ");
+				int row;
+				while (true) {
+					try {
+						row = Integer.parseInt(stdin.next());
+						if (row > 0) {
+							break;
+						} else {
+							throw new NumberFormatException();
+						}
+					} catch (NumberFormatException e) {
+						System.out.print("\tYou must enter a positive integer => ");
+					}
+				}
+				try {
+					tree.boldRow(row);
+				} catch (IllegalArgumentException iae) {
+					System.out.println("\tTable does not have row " + row);
+				}
+			} else if (option == 'd') {
 				System.out.print("\tEnter tag to remove => ");
-				tree.removeTag(stdin.nextLine().trim());
+				tree.removeTag(stdin.next().trim());
 			} else if (option == 'a') {
 				System.out.print("\tEnter text to tag => ");
-				String text = stdin.nextLine().trim();
+				String text = stdin.next().trim();
 				System.out.print("\tEnter tag => ");
-				String tag = stdin.nextLine().trim();
+				String tag = stdin.next().trim();
 				tree.addTag(text, tag);
 			}
 		}

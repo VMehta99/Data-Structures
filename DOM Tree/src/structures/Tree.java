@@ -12,12 +12,12 @@ public class Tree {
 	/**
 	 * Root node
 	 */
-	TagNode root=null;
+	public TagNode root=null;
 	
 	/**
 	 * Scanner used to read input HTML file when building the tree
 	 */
-	Scanner sc;
+	public Scanner sc;
 	
 	/**
 	 * Initializes this tree object with scanner for input HTML file
@@ -35,30 +35,15 @@ public class Tree {
 	 * 
 	 * The root of the tree that is built is referenced by the root field of this object.
 	 */
-	public void recBuild(TagNode node, String str) {
-	     if(str.equals(""))
-	         return;
-	     else if(str.charAt(0) == '<') {
-             node = new TagNode(str.substring(1, str.indexOf(">")), null, null);
-             String recStr = str.substring(str.indexOf(">") + 1, "</" + node.tag + ">");
-
-             recBuild(node.firstChild, recStr);
-             recBuild(node.sibling, str.substring(str.indexOf("</" + node.tag + ">") + node.tag.length() + 3));
-         } else {
-	         node = (str.indexOf("<") != -1) ? new TagNode(str.substring(0, str.indexOf("<")), null, null);
-	         recBuild(node.sibling, str.substring(str.indexOf("<")));
-         }
-	}
 
 	public void build() {
-		String str = "";
+        TagNode ptr = root;
 
-		while(sc.hasNextLine())
-			str += st.nextLine();
+        while(sc.hasNextLine()) {
 
-		recBuild(root, str);
+        }
 	}
-	
+
 	/**
 	 * Replaces all occurrences of an old tag in the DOM tree with a new tag
 	 * 

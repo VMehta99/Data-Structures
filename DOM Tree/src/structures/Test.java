@@ -1,3 +1,5 @@
+package structures;
+
 import java.lang.RuntimeException;
 import java.util.Scanner;
 
@@ -28,7 +30,7 @@ public class Test {
     }
 
     public static void testTreeBuild() throws RuntimeException {
-        System.out.println("TESTING Test.build");
+        System.out.println("TESTING structures.Test.build");
 
         Tree tree;
 
@@ -358,3 +360,4 @@ public class Test {
         testTree();
     }
 }
+

@@ -54,27 +54,7 @@ public class DOM {
 				System.out.print("\tEnter new tag => ");
 				String newTag = stdin.nextLine();
 				tree.replaceTag(oldTag, newTag);
-			} else if (option == 'b') {
-				System.out.print("\tEnter row number (1..n) => ");
-				int row;
-				while (true) {
-					try {
-						row = Integer.parseInt(stdin.nextLine());
-						if (row > 0) {
-							break;
-						} else {
-							throw new NumberFormatException();
-						}
-					} catch (NumberFormatException e) {
-						System.out.print("\tYou must enter a positive integer => ");
-					}
-				}
-				try {
-					tree.boldRow(row);
-				} catch (IllegalArgumentException iae) {
-					System.out.println("\tTable does not have row " + row);
-				}
-			} else if (option == 'd') {
+			} else if (option == 'b')  else if (option == 'd') {
 				System.out.print("\tEnter tag to remove => ");
 				tree.removeTag(stdin.nextLine().trim());
 			} else if (option == 'a') {

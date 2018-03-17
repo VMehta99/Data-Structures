@@ -49,7 +49,7 @@ public class Test {
         expect(tree.root.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<p>Hi</p>"));
+                "<p>\nHi\n</p>"));
         tree.build();
         expect(tree.root.tag, "p");
         expect(tree.root.sibling, null);

@@ -21,28 +21,54 @@ public class Tree {
 	
 	/**
 	 * Initializes this tree object with scanner for input HTML file
-	 * 
-	 * @param sc Scanner for input HTML file
+	 uu*
+	 * @param sc scanner for input html file
 	 */
 	public Tree(Scanner sc) {
 		this.sc = sc;
 		root = null;
 	}
-	
+
 	/**
-	 * Builds the DOM tree from input HTML file, through scanner passed
-	 * in to the constructor and stored in the sc field of this object. 
-	 * 
-	 * The root of the tree that is built is referenced by the root field of this object.
+	 * builds the dom tree from input html file, through scanner passed
+	 * in to the constructor and stored in the sc field of this object.
+	 *
+	 * the root of the tree that is built is referenced by the root field of this object.
 	 */
 
 	public void build() {
-        TagNode ptr = root;
+        if(!sc.hasNextLine()) {
+            root = new TagNode("", null, null);
+        } else {
+            // do first node separately - java null implementation does not hold
+            String s = sc.nextLine();
+            root = new TagNode(s.replaceAll("[<>]", ""), null, null);
 
-        while(sc.hasNextLine()) {
+            TagNode ptr = (s.contains("<")) ? root.firstChild : root.sibling, lastOpen = root;
 
+            while(sc.hasNextLine()) {
+                String str = sc.nextLine();
+
+                if(str.charAt(0) == '<') {
+                    // check open-tag vs. close-tag
+
+                    if(str.charAt(1) == '\\') {
+                        ptr = lastOpen.sibling;
+                    } else {
+                        ptr = new TagNode(str.replaceAll("[<>]", ""), null, null);
+
+                        // hopefully shallow-copies ptr into lastOpen
+                        lastOpen = ptr;
+                        ptr = ptr.firstChild;
+                    }
+
+                } else {
+                    ptr = new TagNode(str, null, null);
+                    ptr = ptr.sibling;
+                }
+            }
         }
-	}
+    }
 
 	/**
 	 * Replaces all occurrences of an old tag in the DOM tree with a new tag

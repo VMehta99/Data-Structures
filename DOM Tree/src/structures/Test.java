@@ -30,7 +30,7 @@ public class Test {
     }
 
     public static void testTreeBuild() throws RuntimeException {
-        System.out.println("TESTING structures.Test.build");
+        System.out.println("TESTING Tree.build");
 
         Tree tree;
 
@@ -42,6 +42,27 @@ public class Test {
         expect(tree.root.sibling, null);
 
         tree = new Tree(new Scanner(
+                " hi"));
+        tree.build();
+        expect(tree.root.tag, " hi");
+        expect(tree.root.firstChild, null);
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner(
+                " hi "));
+        tree.build();
+        expect(tree.root.tag, " hi ");
+        expect(tree.root.firstChild, null);
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner(
+                "google.com "));
+        tree.build();
+        expect(tree.root.tag, "google.com ");
+        expect(tree.root.firstChild, null);
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner(
                 "Hi"));
         tree.build();
         expect(tree.root.tag, "Hi");
@@ -49,7 +70,7 @@ public class Test {
         expect(tree.root.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<p>\nHi\n</p>"));
+                "<p>Hi</p>"));
         tree.build();
         expect(tree.root.tag, "p");
         expect(tree.root.sibling, null);
@@ -346,6 +367,52 @@ public class Test {
         expect(tree.root.firstChild.sibling.sibling.tag, "Whaddup");
         expect(tree.root.firstChild.sibling.sibling.sibling.tag, "b");
         expect(tree.root.firstChild.sibling.sibling.sibling.sibling.tag, "Emoji");
+
+
+        tree = new Tree(new Scanner("<ul><li>Hi</li></ul>"));
+        tree.build();
+        tree.removeTag("ul");
+        expect(tree.root.tag, "p");
+        expect(tree.root.firstChild.tag, "Hi");
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner("<ol><li>Hi</li></ol>"));
+        tree.build();
+        tree.removeTag("ol");
+        expect(tree.root.tag, "p");
+        expect(tree.root.firstChild.tag, "Hi");
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner("<ol><li>Hi</li></ol>"));
+        tree.build();
+        tree.removeTag("ul");
+        expect(tree.root.tag, "ol");
+        expect(tree.root.firstChild.tag, "li");
+        expect(tree.root.firstChild.firstChild.tag, "Hi");
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner("<ol><li>Hi, <b>Sup!</b></li></ol>"));
+        tree.build();
+        tree.removeTag("ul");
+        expect(tree.root.tag, "ol");
+        expect(tree.root.firstChild.tag, "li");
+        expect(tree.root.firstChild.firstChild.tag, "Hi, ");
+        expect(tree.root.firstChild.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "Sup!");
+        expect(tree.root.sibling, null);
+
+        tree = new Tree(new Scanner("<html><ol><li>Hi, <b>Sup!</b></li></ol><ul><li>Hey</li></ul></html>"));
+        tree.build();
+        tree.removeTag("ul");
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "ol");
+        expect(tree.root.firstChild.firstChild.tag, "li");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "Hi, ");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.firstChild.tag, "Sup!");
+        expect(tree.root.firstChild.sibling.tag, "p");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "Hey");
+
     }
 
     public static void testTree() throws RuntimeException {

@@ -21,7 +21,7 @@ public class DOM {
 		System.out.print("(d)elete tag, ");
 		System.out.print("(a)dd tag, or ");
 		System.out.print("(q)uit? => ");
-		char response = stdin.nextLine().toLowerCase().charAt(0);
+		char response = stdin.next().toLowerCase().charAt(0);
 		while (!options.contains(response+"")) {
 			System.out.print("\tYou must enter one of p, h, r, b, d, a, or q => ");
 			response = stdin.nextLine().toLowerCase().charAt(0);
@@ -34,7 +34,7 @@ public class DOM {
 	 */
 	public static void main(String[] args)
 			throws IOException {
-		// TODO Auto-generated method stub
+		// TODO Auto-generate method stub
 		System.out.print("Enter HTML file name => ");
 		String htmlFile = stdin.nextLine();
 		Tree tree = new Tree(new Scanner(new File(htmlFile)));

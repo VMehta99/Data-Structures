@@ -1,5 +1,6 @@
 package structures;
 
+import javax.sound.midi.SysexMessage;
 import java.util.*;
 
 /**
@@ -40,33 +41,54 @@ public class Tree {
         if(!sc.hasNextLine()) {
             root = new TagNode("", null, null);
         } else {
-            // do first node separately - java null implementation does not hold
-            String s = sc.nextLine();
-            root = new TagNode(s.replaceAll("[<>]", ""), null, null);
+        	root = new TagNode(sc.nextLine().replaceAll("[<>]", ""), null, null);
 
-            TagNode ptr = (s.contains("<")) ? root.firstChild : root.sibling, lastOpen = root;
+        	Stack<TagNode> openNodes = new Stack<>();
+        	openNodes.push(root);
 
-            while(sc.hasNextLine()) {
-                String str = sc.nextLine();
+        	TagNode ptr = root;
 
-                if(str.charAt(0) == '<') {
-                    // check open-tag vs. close-tag
+        	while(sc.hasNextLine()) {
+        		String str = sc.nextLine();
 
-                    if(str.charAt(1) == '\\') {
-                        ptr = lastOpen.sibling;
-                    } else {
-                        ptr = new TagNode(str.replaceAll("[<>]", ""), null, null);
+        		if(str.contains("<") && str.charAt(1) != '/') {
+        			// find first non-null node of relevant parent
+					TagNode prev = openNodes.peek();
 
-                        // hopefully shallow-copies ptr into lastOpen
-                        lastOpen = ptr;
-                        ptr = ptr.firstChild;
-                    }
+					if(prev.firstChild == null) {
+						prev.firstChild = new TagNode(str.replaceAll("[<>]", ""), null, null);
+						ptr = prev.firstChild;
+					} else {
+						prev = prev.firstChild;
 
-                } else {
-                    ptr = new TagNode(str, null, null);
-                    ptr = ptr.sibling;
-                }
-            }
+						while(prev.sibling != null)
+							prev = prev.sibling;
+
+						prev.sibling = new TagNode(str.replaceAll("[<>]", ""), null, null);
+						ptr = prev.sibling;
+					}
+
+					openNodes.push(ptr);
+        		} else if(str.contains("<")){
+        			openNodes.pop();
+
+        			if(openNodes.size() > 0)
+        				ptr = openNodes.peek();
+        			else
+        				break;
+        		} else {
+        			if(ptr.firstChild == null)
+        				ptr.firstChild = new TagNode(str, null, null);
+        			else {
+        				ptr = ptr.firstChild;
+
+        				while(ptr.sibling != null)
+							ptr = ptr.sibling;
+
+        				ptr.sibling = new TagNode(str, null, null);
+					}
+				}
+			}
         }
     }
 
@@ -76,8 +98,25 @@ public class Tree {
 	 * @param oldTag Old tag
 	 * @param newTag Replacement tag
 	 */
+
+	private void recReplaceTag(TagNode parent, String oldTag, String newTag) {
+		if(parent.tag.equals(oldTag))
+			parent.tag = newTag;
+
+		while(parent != null) {
+			TagNode ptr = parent.firstChild;
+
+			while(ptr != null) {
+				recReplaceTag(ptr, oldTag, newTag);
+				ptr = ptr.sibling;
+			}
+
+			parent = parent.sibling;
+		}
+	}
+
 	public void replaceTag(String oldTag, String newTag) {
-		/** COMPLETE THIS METHOD **/
+		recReplaceTag(root, oldTag, newTag);
 	}
 	
 	/**
@@ -86,8 +125,45 @@ public class Tree {
 	 * 
 	 * @param row Row to bold, first row is numbered 1 (not 0).
 	 */
+
+	private void recBoldRow(TagNode parent, int row) {
+		if(parent == null)
+			return;
+		else if(parent.tag.equals("table")) {
+			TagNode ptr = parent.firstChild;
+
+			for(int count = 1; count < row; count++) {
+				ptr = ptr.sibling;
+			}
+
+			// do first col w/o loop
+			TagNode fbr = new TagNode("br", ptr.firstChild, ptr.firstChild.sibling);
+			ptr.firstChild = fbr;
+		    ptr = ptr.firstChild;
+
+			ptr.firstChild.sibling = null;
+
+			while(ptr.sibling != null) {
+				TagNode br =  new TagNode("br", ptr.sibling, ptr.sibling.sibling);
+				br.firstChild.sibling = null;
+
+				ptr.sibling = br;
+				ptr = ptr.sibling;
+			}
+
+		} else {
+			TagNode ptr = parent.firstChild;
+
+			while(ptr != null) {
+				recBoldRow(ptr, row);
+				ptr = ptr.sibling;
+			}
+		}
+	}
+
 	public void boldRow(int row) {
-		/** COMPLETE THIS METHOD **/
+	    TagNode node = new TagNode(null, root, null);
+		recBoldRow(node, row);
 	}
 	
 	/**
@@ -97,8 +173,40 @@ public class Tree {
 	 * 
 	 * @param tag Tag to be removed, can be p, em, b, ol, or ul
 	 */
+
+	// in each step, look at node's children
+	private void recRemoveTag(TagNode parent, String tag) {
+	    TagNode table = parent.firstChild;
+
+	    while(table != null) {
+            if (table.tag.equals(tag)) {
+                TagNode ptr = table.firstChild, first = ptr;
+
+                while (ptr != null) {
+                    if (tag.equals("ol") || tag.equals("ul"))
+                        ptr.tag = "p";
+
+                    if (ptr.sibling == null)
+                        break;
+
+                    ptr = ptr.sibling;
+                }
+
+                ptr.sibling = parent.firstChild.sibling;
+                parent.firstChild = first;
+
+            } else {
+                recRemoveTag(table, tag);
+            }
+
+            table = table.sibling;
+        }
+    }
+
 	public void removeTag(String tag) {
-		/** COMPLETE THIS METHOD **/
+	    TagNode node = new TagNode(null, root, null);
+
+        recRemoveTag(node, tag);
 	}
 	
 	/**
@@ -107,8 +215,23 @@ public class Tree {
 	 * @param word Word around which tag is to be added
 	 * @param tag Tag to be added
 	 */
+
+	private void recAddTag(TagNode parent, String word, String tag) {
+	    TagNode ptr = parent.firstChild;
+
+	    if(ptr.tag.equals(word))
+	        ptr = new TagNode(tag, ptr, ptr.sibling);
+
+	    while(ptr != null) {
+	        if(ptr.tag.equals(word))
+	            ptr = new TagNode(tag, ptr, ptr.sibling);
+            else
+	            recAddTag(ptr, word, tag);
+        }
+    }
+
 	public void addTag(String word, String tag) {
-		/** COMPLETE THIS METHOD **/
+        recAddTag(root, word, tag);
 	}
 	
 	/**

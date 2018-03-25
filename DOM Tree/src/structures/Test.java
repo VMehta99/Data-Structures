@@ -70,7 +70,7 @@ public class Test {
         expect(tree.root.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<p>Hi</p>"));
+                "<p>\nHi\n</p>"));
         tree.build();
         expect(tree.root.tag, "p");
         expect(tree.root.sibling, null);
@@ -79,7 +79,7 @@ public class Test {
         expect(tree.root.firstChild.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<b>Sup</b>"));
+                "<b>\nSup\n</b>"));
         tree.build();
         expect(tree.root.tag, "b");
         expect(tree.root.sibling, null);
@@ -88,14 +88,14 @@ public class Test {
         expect(tree.root.firstChild.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<html></html>"));
+                "<html>\n</html>"));
         tree.build();
         expect(tree.root.tag, "html");
         expect(tree.root.firstChild, null);
         expect(tree.root.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<html><p>Hi</p></html>"));
+                "<html>\n<p>\nHi\n</p>\n</html>"));
         tree.build();
         expect(tree.root.tag, "html");
         expect(tree.root.sibling, null);
@@ -104,7 +104,7 @@ public class Test {
         expect(tree.root.firstChild.sibling, null);
 
         tree = new Tree(new Scanner(
-                "<html><p>Hi</p><b>Hey</b></html>"));
+                "<html>\n<p>\nHi\n</p>\n<b>\nHey\n</b>\n</html>"));
         tree.build();
         expect(tree.root.tag, "html");
         expect(tree.root.sibling, null);
@@ -117,7 +117,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.firstChild, null);
 
         tree = new Tree(new Scanner(
-                "<html><p>Hi<b>Sup</b></p><b>Hey</b></html>"));
+                "<html>\n<p>\nHi\n<b>\nSup\n</b>\n</p>\n<b>\nHey\n</b>\n</html>"));
         tree.build();
         expect(tree.root.tag, "html");
         expect(tree.root.sibling, null);
@@ -134,7 +134,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.firstChild, null);
 
         tree = new Tree(new Scanner(
-                "<html><p>Hi<b>Sup</b></p><b>Hey</b><p>Waddup</p></html>"));
+                "<html>\n<p>\nHi\n<b>\nSup\n</b>\n</p>\n<b>\nHey\n</b>\n<p>\nWaddup\n</p>\n</html>"));
         tree.build();
         expect(tree.root.tag, "html");
         expect(tree.root.sibling, null);
@@ -156,7 +156,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.firstChild, null);
 
         tree = new Tree(new Scanner(
-                "<p>A<em>new</em>paragraph.</p>"));
+                "<p>\nA\n<em>\nnew\n</em>\nparagraph.\n</p>"));
         tree.build();
         expect(tree.root.tag, "p");
         expect(tree.root.sibling, null);
@@ -167,7 +167,7 @@ public class Test {
 
         // official example 1
         final String ex1 =
-                "<html><body><p>A line of non-tagged text.</p><p>A<em>new</em>paragraph.</p><table><tr><td><em>R1C1</em></td><td>R1C2</td></tr><tr><td>R2C1</td><td>R2C2</td></tr></table></body></html>";
+                "<html>\n<body>\n<p>\nA line of non-tagged text.\n</p>\n<p>\nA\n<em>\nnew\n</em>\nparagraph.\n</p>\n<table>\n<tr>\n<td>\n<em>\nR1C1\n</em>\n</td>\n<td>\nR1C2\n</td>\n</tr>\n<tr>\n<td>\nR2C1\n</td>\n<td>\nR2C2\n</td>\n</tr>\n</table>\n</body>\n</html>";
         tree = new Tree(new Scanner(ex1));
         tree.build();
         expect(tree.root.tag, "html");
@@ -199,7 +199,7 @@ public class Test {
 
         // official example 2
         final String ex2 =
-                "<html><body><ol><li>First item</li><li>Second item</li></ol><ul><li>An item</li><li>Another item</li></ul></body></html>";
+                "<html>\n<body>\n<ol>\n<li>\nFirst item\n</li>\n<li>\nSecond item\n</li>\n</ol>\n<ul>\n<li>\nAn item\n</li>\n<li>\nAnother item\n</li>\n</ul>\n</body>\n</html>";
         tree = new Tree(new Scanner(ex2));
         tree.build();
         expect(tree.root.tag, "html");
@@ -216,7 +216,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.sibling.firstChild.sibling.firstChild.tag, "Another item");
 
         final String ex3 =
-                "<html><body><ol><li>First item<ul><li>Sub item</li><li>Another sub item which has 3 numbered items<ol><li>Item one</li><li>Item two</li><li>Item three</li></ol></li></ul></li><li>Second item</li></ol></body></html>";
+                "<html>\n<body>\n<ol>\n<li>\nFirst item\n<ul>\n<li>\nSub item\n</li>\n<li>\nAnother sub item which has 3 numbered items\n<ol>\n<li>\nItem one\n</li>\n<li>\nItem two\n</li>\n<li>\nItem three\n</li>\n</ol>\n</li>\n</ul>\n</li>\n<li>\nSecond item\n</li>\n</ol>\n</body>\n</html>";
         tree = new Tree(new Scanner(ex3));
         tree.build();
         expect(tree.root.tag, "html");
@@ -253,13 +253,13 @@ public class Test {
         tree.replaceTag("p", "waddup");
         expect(tree.root.tag, "sup");
 
-        tree = new Tree(new Scanner("<b>Hey!</b>"));
+        tree = new Tree(new Scanner("<b>\nHey!\n</b>"));
         tree.build();
         tree.replaceTag("b", "em");
         expect(tree.root.tag, "em");
         expect(tree.root.firstChild.tag, "Hey!");
 
-        tree = new Tree(new Scanner("<b><p><b>Hey!</b></p></b>"));
+        tree = new Tree(new Scanner("<b>\n<p>\n<b>\nHey!\n</b>\n</p>\n</b>"));
         tree.build();
         tree.replaceTag("b", "em");
         expect(tree.root.tag, "em");
@@ -267,7 +267,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.tag, "em");
         expect(tree.root.firstChild.firstChild.firstChild.tag, "Hey!");
 
-        tree = new Tree(new Scanner("<b><p><b>Hey!</b></p><em>Mohammad</em></b>"));
+        tree = new Tree(new Scanner("<b>\n<p>\n<b>\nHey!\n</b>\n</p>\n<em>\nMohammad\n</em>\n</b>"));
         tree.build();
         tree.replaceTag("b", "em");
         expect(tree.root.tag, "em");
@@ -277,7 +277,7 @@ public class Test {
         expect(tree.root.firstChild.sibling.tag, "em");
         expect(tree.root.firstChild.sibling.firstChild.tag, "Mohammad");
 
-        tree = new Tree(new Scanner("<html><b><p><b>Hey!</b></p><em>Mohammad</em></b><b>p</b></html>"));
+        tree = new Tree(new Scanner("<html>\n<b>\n<p>\n<b>\nHey!\n</b>\n</p>\n<em>\nMohammad\n</em>\n</b>\n<b>\np\n</b>\n</html>"));
         tree.build();
         tree.replaceTag("b", "em");
         expect(tree.root.tag, "html");
@@ -296,21 +296,21 @@ public class Test {
 
         Tree tree;
 
-        tree = new Tree(new Scanner("<p>Hi</p>"));
+        tree = new Tree(new Scanner("<p>\nHi\n</p>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "Hi");
         expect(tree.root.sibling, null);
         expect(tree.root.firstChild, null);
 
-        tree = new Tree(new Scanner("<html><p>Hi</p></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n</html>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "html");
         expect(tree.root.sibling, null);
         expect(tree.root.firstChild.tag, "Hi");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><b>Whaddup</b></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<b>\nWhaddup\n</b>\n</html>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "html");
@@ -319,7 +319,7 @@ public class Test {
         expect(tree.root.firstChild.sibling.tag, "b");
         expect(tree.root.firstChild.sibling.firstChild.tag, "Whaddup");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><b>Whaddup</b></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<b>\nWhaddup\n</b>\n</html>"));
         tree.build();
         tree.removeTag("p");
         tree.removeTag("b");
@@ -328,7 +328,7 @@ public class Test {
         expect(tree.root.firstChild.tag, "Hi");
         expect(tree.root.firstChild.sibling.tag, "Whaddup");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><p>Muhhamad</p><b>Whaddup</b></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<p>\nMuhhamad\n</p>\n<b>\nWhaddup\n</b>\n</html>"));
         tree.build();
         tree.removeTag("p");
         tree.removeTag("b");
@@ -338,7 +338,7 @@ public class Test {
         expect(tree.root.firstChild.sibling.tag, "Muhhamad");
         expect(tree.root.firstChild.sibling.sibling.tag, "Whaddup");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><p>Muhhamad</p><p>Whaddup</p></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<p>\nMuhhamad\n</p>\n<p>\nWhaddup\n</p>\n</html>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "html");
@@ -347,7 +347,7 @@ public class Test {
         expect(tree.root.firstChild.sibling.tag, "Muhhamad");
         expect(tree.root.firstChild.sibling.sibling.tag, "Whaddup");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><p>Muhhamad</p><p>Whaddup<p>Emoji</p></p></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<p>\nMuhhamad\n</p>\n<p>\nWhaddup\n<p>\nEmoji\n</p>\n</p>\n</html>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "html");
@@ -357,7 +357,7 @@ public class Test {
         expect(tree.root.firstChild.sibling.sibling.tag, "Whaddup");
         expect(tree.root.firstChild.sibling.sibling.sibling.tag, "Emoji");
 
-        tree = new Tree(new Scanner("<html><p>Hi</p><p>Muhhamad</p><p>Whaddup<p><b></b>Emoji</p></p></html>"));
+        tree = new Tree(new Scanner("<html>\n<p>\nHi\n</p>\n<p>\nMuhhamad\n</p>\n<p>\nWhaddup\n<p>\n<b>\n</b>\nEmoji\n</p>\n</p>\n</html>"));
         tree.build();
         tree.removeTag("p");
         expect(tree.root.tag, "html");
@@ -369,21 +369,21 @@ public class Test {
         expect(tree.root.firstChild.sibling.sibling.sibling.sibling.tag, "Emoji");
 
 
-        tree = new Tree(new Scanner("<ul><li>Hi</li></ul>"));
+        tree = new Tree(new Scanner("<ul>\n<li>\nHi\n</li>\n</ul>"));
         tree.build();
         tree.removeTag("ul");
         expect(tree.root.tag, "p");
         expect(tree.root.firstChild.tag, "Hi");
         expect(tree.root.sibling, null);
 
-        tree = new Tree(new Scanner("<ol><li>Hi</li></ol>"));
+        tree = new Tree(new Scanner("<ol>\n<li>\nHi\n</li>\n</ol>"));
         tree.build();
         tree.removeTag("ol");
         expect(tree.root.tag, "p");
         expect(tree.root.firstChild.tag, "Hi");
         expect(tree.root.sibling, null);
 
-        tree = new Tree(new Scanner("<ol><li>Hi</li></ol>"));
+        tree = new Tree(new Scanner("<ol>\n<li>\nHi\n</li>\n</ol>"));
         tree.build();
         tree.removeTag("ul");
         expect(tree.root.tag, "ol");
@@ -391,7 +391,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.tag, "Hi");
         expect(tree.root.sibling, null);
 
-        tree = new Tree(new Scanner("<ol><li>Hi, <b>Sup!</b></li></ol>"));
+        tree = new Tree(new Scanner("<ol>\n<li>\nHi, \n<b>\nSup!\n</b>\n</li>\n</ol>"));
         tree.build();
         tree.removeTag("ul");
         expect(tree.root.tag, "ol");
@@ -401,7 +401,7 @@ public class Test {
         expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "Sup!");
         expect(tree.root.sibling, null);
 
-        tree = new Tree(new Scanner("<html><ol><li>Hi, <b>Sup!</b></li></ol><ul><li>Hey</li></ul></html>"));
+        tree = new Tree(new Scanner("<html>\n<ol>\n<li>\nHi, \n<b>\nSup!\n</b>\n</li>\n</ol>\n<ul>\n<li>\nHey\n</li>\n</ul>\n</html>"));
         tree.build();
         tree.removeTag("ul");
         expect(tree.root.tag, "html");
@@ -412,7 +412,144 @@ public class Test {
         expect(tree.root.firstChild.firstChild.firstChild.sibling.firstChild.tag, "Sup!");
         expect(tree.root.firstChild.sibling.tag, "p");
         expect(tree.root.firstChild.sibling.firstChild.tag, "Hey");
+    }
 
+    public static void testTreeAddTag() throws RuntimeException {
+        System.out.println("TESTING Tree.addTag");
+
+        Tree tree;
+
+        // "hi, how are you?" => "<b>hi,</b> how are you?"
+        tree = new Tree(new Scanner("hi, how are you?"));
+        tree.build();
+        tree.addTag("hi", "b");
+        expect(tree.root.tag, "b");
+        expect(tree.root.firstChild.tag, "hi,");
+        expect(tree.root.sibling.tag, " how are you?");
+
+        // "hi, how are you?" => "hi, how <b>are</b> you?"
+        tree = new Tree(new Scanner("hi, how are you?"));
+        tree.build();
+        tree.addTag("are", "b");
+        expect(tree.root.tag, "hi, how ");
+        expect(tree.root.sibling.tag, "b");
+        expect(tree.root.sibling.firstChild.tag, "are");
+        expect(tree.root.sibling.sibling.tag, " you?");
+
+        // "<html>hi, how are you?</html>" => "<html>hi, <b>how</b> are you?</html>"
+        tree = new Tree(new Scanner("<html>\nhi, how are you?\n</html>"));
+        tree.build();
+        tree.addTag("how", "b");
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "hi, ");
+        expect(tree.root.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "how");
+        expect(tree.root.firstChild.sibling.sibling.tag, " are you?");
+
+        tree = new Tree(new Scanner("<html>\nhi, how are you?\n</html>"));
+        tree.build();
+        tree.addTag("you", "b");
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "hi, how are ");
+        expect(tree.root.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "you?");
+
+        tree = new Tree(new Scanner("<html>\nDo you know html?\n</html>"));
+        tree.build();
+        tree.addTag("you", "b");
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "Do ");
+        expect(tree.root.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "you");
+        expect(tree.root.firstChild.sibling.sibling.tag, " know html?");
+
+        tree = new Tree(new Scanner("<html>\nDo you know html?\n</html>"));
+        tree.build();
+        tree.addTag("html", "b");
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "Do you know ");
+        expect(tree.root.firstChild.sibling.tag, "b");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "html?");
+    }
+
+    public static void testTreeBoldRow() throws RuntimeException {
+        System.out.println("Testing Tree.boldRow");
+
+        Tree tree;
+
+        tree = new Tree(new Scanner("<html>\n<table>\n<tr>\n<td>\nHi\n</tr>\n</td>\n</table>\n</html>"));
+        tree.build();
+        tree.boldRow(1);
+        expect(tree.root.tag, "html");
+        expect(tree.root.firstChild.tag, "table");
+        expect(tree.root.firstChild.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.firstChild.tag, "Hi");
+
+        tree = new Tree(new Scanner("<table>\n<tr>\n<td>\nHey\n</td>\n</tr>\n</table>"));
+        tree.build();
+        tree.boldRow(1);
+        expect(tree.root.tag, "table");
+        expect(tree.root.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.tag, "Hey");
+
+        tree = new Tree(new Scanner("<table>\n<tr>\n<td>\nHey\n</td>\n<td>\nSup\n</td>\n</tr>\n</table>"));
+        tree.build();
+        tree.boldRow(1);
+        expect(tree.root.tag, "table");
+        expect(tree.root.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.tag, "Hey");
+        expect(tree.root.firstChild.firstChild.sibling.tag, "td");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.firstChild.tag, "Sup");
+
+        tree = new Tree(new Scanner("<table>\n<tr>\n<td>\nHey\n</td>\n<td>\nSup\n</td>\n</tr>\n<tr>\n<td>\nWaddup\n</td>\n</tr>\n</table>"));
+        tree.build();
+        tree.boldRow(2);
+        expect(tree.root.tag, "table");
+        expect(tree.root.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "Hey");
+        expect(tree.root.firstChild.firstChild.sibling.tag, "td");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "Sup");
+        expect(tree.root.firstChild.sibling.tag, "tr");
+        expect(tree.root.firstChild.sibling.firstChild.tag, "td");
+        expect(tree.root.firstChild.sibling.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.sibling.firstChild.firstChild.firstChild.tag, "Waddup");
+
+        tree = new Tree(new Scanner("<html>\n<table>\n<tr>\n<td>\nHey\n</td>\n<td>\nSup\n</td>\n</tr>\n<tr>\n<td>\nWaddup\n</td>\n</tr>\n</table>\n</html>"));
+        tree.build();
+        tree.boldRow(2);
+        expect(tree.root.firstChild.tag, "table");
+        expect(tree.root.firstChild.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.tag, "Hey");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.firstChild.tag, "Sup");
+        expect(tree.root.firstChild.firstChild.sibling.tag, "tr");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.firstChild.firstChild.tag, "Waddup");
+
+        tree = new Tree(new Scanner("<html>\n<table>\n<tr>\n<td>\nHey\n</td>\n<td>\nSup\n</td>\n</tr>\n<tr>\n<td>\nWaddup\n</td>\n<td>\n<i>\nMohammad\n</i>\n</td>\n</tr>\n</table>\n</html>"));
+        tree.build();
+        tree.boldRow(2);
+        expect(tree.root.firstChild.tag, "table");
+        expect(tree.root.firstChild.firstChild.tag, "tr");
+        expect(tree.root.firstChild.firstChild.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.firstChild.tag, "Hey");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.tag, "td");
+        expect(tree.root.firstChild.firstChild.firstChild.sibling.firstChild.tag, "Sup");
+        expect(tree.root.firstChild.firstChild.sibling.tag, "tr");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "td");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.firstChild.tag, "b");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.firstChild.firstChild.tag, "Waddup");
+        expect(tree.root.firstChild.firstChild.sibling.firstChild.tag, "td");
     }
 
     public static void testTree() throws RuntimeException {
@@ -420,6 +557,10 @@ public class Test {
         testTreeBuild();
         testTreeReplaceTag();
         testTreeRemoveTag();
+        testTreeBoldRow();
+        testTreeAddTag();
+
+        System.out.println("DONE!");
     }
 
     public static void main(String[] args) throws RuntimeException {

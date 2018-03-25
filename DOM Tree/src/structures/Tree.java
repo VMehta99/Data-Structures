@@ -136,20 +136,12 @@ public class Tree {
 				ptr = ptr.sibling;
 			}
 
-			// do first col w/o loop
-			TagNode fbr = new TagNode("br", ptr.firstChild, ptr.firstChild.sibling);
-			ptr.firstChild = fbr;
-		    ptr = ptr.firstChild;
+			TagNode node = ptr.firstChild;
 
-			ptr.firstChild.sibling = null;
-
-			while(ptr.sibling != null) {
-				TagNode br =  new TagNode("br", ptr.sibling, ptr.sibling.sibling);
-				br.firstChild.sibling = null;
-
-				ptr.sibling = br;
-				ptr = ptr.sibling;
-			}
+		    while(node != null) {
+		        node.firstChild = new TagNode("b", node.firstChild, null);
+		        node = node.sibling;
+            }
 
 		} else {
 			TagNode ptr = parent.firstChild;
@@ -162,7 +154,7 @@ public class Tree {
 	}
 
 	public void boldRow(int row) {
-	    TagNode node = new TagNode(null, root, null);
+	    TagNode node = new TagNode("", root, null);
 		recBoldRow(node, row);
 	}
 	
@@ -174,39 +166,71 @@ public class Tree {
 	 * @param tag Tag to be removed, can be p, em, b, ol, or ul
 	 */
 
-	// in each step, look at node's children
-	private void recRemoveTag(TagNode parent, String tag) {
-	    TagNode table = parent.firstChild;
 
-	    while(table != null) {
-            if (table.tag.equals(tag)) {
-                TagNode ptr = table.firstChild, first = ptr;
+	private void removeTag(TagNode parent, String tag) {
+	    if(parent.firstChild == null)
+	        return;
 
-                while (ptr != null) {
-                    if (tag.equals("ol") || tag.equals("ul"))
-                        ptr.tag = "p";
+	    TagNode prev = parent, ptr = parent.firstChild;
 
-                    if (ptr.sibling == null)
-                        break;
+	    while(ptr != null) {
+	        removeTag(ptr, tag);
 
-                    ptr = ptr.sibling;
+	        if(ptr.tag.equals(tag)) {
+                if (prev == parent) {
+                    prev.firstChild = ptr.firstChild;
+                } else {
+                    prev.sibling = ptr.firstChild;
                 }
 
-                ptr.sibling = parent.firstChild.sibling;
-                parent.firstChild = first;
+                TagNode node = ptr.firstChild;
 
-            } else {
-                recRemoveTag(table, tag);
+                if (tag.equals("ol") || tag.equals("ul")) {
+                    node.tag = "p";
+
+                    if (node.sibling != null)
+                        node = node.sibling;
+                }
+
+
+                while(node != null && node.sibling != null) {
+                    if (tag.equals("ol") || tag.equals("ul"))
+                        node.tag = "p";
+
+                    node = node.sibling;
+                }
+
+                node.sibling = ptr.sibling;
             }
 
-            table = table.sibling;
+            prev = (prev == parent) ? prev.firstChild : prev.sibling;
+	        ptr = ptr.sibling;
         }
-    }
+	}
 
 	public void removeTag(String tag) {
-	    TagNode node = new TagNode(null, root, null);
+	    while(root.tag.equals(tag)) {
+	        TagNode ptr = root.firstChild;
 
-        recRemoveTag(node, tag);
+	        if(tag.equals("ol") || tag.equals("ul")) {
+                ptr.tag = "p";
+
+                if(ptr.sibling != null)
+                    ptr = ptr.sibling;
+            }
+
+	        while(ptr != null && ptr.sibling != null) {
+	            if(tag.equals("ol") || tag.equals("ul"))
+	                ptr.tag = "p";
+
+	            ptr = ptr.sibling;
+            }
+
+            ptr.sibling = root.sibling;
+	        root = root.firstChild;
+        }
+
+        removeTag(root, tag);
 	}
 	
 	/**
@@ -216,22 +240,54 @@ public class Tree {
 	 * @param tag Tag to be added
 	 */
 
-	private void recAddTag(TagNode parent, String word, String tag) {
-	    TagNode ptr = parent.firstChild;
+	// cancer string processing method
+	private ArrayList<String> parse(ArrayList<String> list, String word) {
+	    for(int i = 0; i < list.size(); i++) {
+	        if(i == 0 || list.get(i - 1).charAt(list.get(i - 1).length() - 1) == ' ') {
+	            if(i + 1 != list.size() && ".,?!;:".contains(list.get(i + 1).substring(0, 1))) {
+	                list.set(i, list.get(i) + list.get(i + 1).substring(0, 1));
+	                list.set(i + 1, list.get(i + 1).substring(1));
+                } else {
+	                String add = list.remove(i);
+	                list.set(i, add + list.get(i));
 
-	    if(ptr.tag.equals(word))
-	        ptr = new TagNode(tag, ptr, ptr.sibling);
+	                i--;
+                }
+            } else {
+	            String add = list.remove(i) + list.remove(i + 1);
+	            list.set(i - 3, list.get(i - 3) + add);
 
-	    while(ptr != null) {
-	        if(ptr.tag.equals(word))
-	            ptr = new TagNode(tag, ptr, ptr.sibling);
-            else
-	            recAddTag(ptr, word, tag);
+	            i -= 2;
+            }
+        }
+    }
+
+    private void addTag(TagNode parent, String word, String tag) {
+		if(parent == null || parent.firstChild == null)
+		    return;
+
+        TagNode ptr = parent.firstChild;
+
+		while(ptr != null) {
+		    addTag(ptr, word, tag);
+
+		    if(ptr.tag.contains(word)) {
+		        TagNode next = ptr.sibling;
+		        ArrayList<String> str = new ArrayList<>(Arrays.asList(ptr.tag.split(word)));
+		        str = parse(str, word);
+
+		        // write rest of cancer tomorrow
+
+                ptr.sibling = next;
+		        ptr = ptr.sibling;
+            } else {
+                ptr = ptr.sibling;
+            }
         }
     }
 
 	public void addTag(String word, String tag) {
-        recAddTag(root, word, tag);
+        addTag(root, word, tag);
 	}
 	
 	/**

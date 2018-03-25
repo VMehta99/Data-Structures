@@ -240,26 +240,45 @@ public class Tree {
 	 * @param tag Tag to be added
 	 */
 
-	// cancer string processing method
-	private ArrayList<String> parse(ArrayList<String> list, String word) {
-	    for(int i = 0; i < list.size(); i++) {
-	        if(i == 0 || list.get(i - 1).charAt(list.get(i - 1).length() - 1) == ' ') {
-	            if(i + 1 != list.size() && ".,?!;:".contains(list.get(i + 1).substring(0, 1))) {
-	                list.set(i, list.get(i) + list.get(i + 1).substring(0, 1));
-	                list.set(i + 1, list.get(i + 1).substring(1));
-                } else {
-	                String add = list.remove(i);
-	                list.set(i, add + list.get(i));
+	private boolean isWord(String str, String word) {
+	    if(!str.contains(word))
+	        return false;
 
-	                i--;
-                }
+	    int firstCharIndex = str.indexOf(word) + word.length();
+
+        if(str.indexOf(word) == 0 && firstCharIndex > (str.length() - 1))
+            return true;
+
+        if(firstCharIndex == (str.length() - 1) && ".,:;!?".contains(Character.toString(str.charAt(firstCharIndex))))
+            return true;
+
+        return false;
+    }
+
+	// cancer string parsing method
+	private ArrayList<String> parse(String tag, String word) {
+	    String cache = "";
+	    StringTokenizer tokens = new StringTokenizer(tag, " ", true);
+	    ArrayList<String> ret = new ArrayList<>();
+
+	    while(tokens.hasMoreTokens()) {
+	        String str = tokens.nextToken();
+
+	        if(isWord(str, word)) {
+                if(!cache.equals(""))
+	                ret.add(cache);
+
+                ret.add(str);
+                cache = "";
             } else {
-	            String add = list.remove(i) + list.remove(i + 1);
-	            list.set(i - 3, list.get(i - 3) + add);
-
-	            i -= 2;
+	            cache += str;
             }
         }
+
+        if(!cache.equals(""))
+            ret.add(cache);
+
+	    return ret;
     }
 
     private void addTag(TagNode parent, String word, String tag) {
@@ -267,16 +286,33 @@ public class Tree {
 		    return;
 
         TagNode ptr = parent.firstChild;
+        boolean replaceRoot = (ptr == root);
 
 		while(ptr != null) {
 		    addTag(ptr, word, tag);
 
-		    if(ptr.tag.contains(word)) {
+		    if(ptr.firstChild == null && ptr.tag.contains(word)) {
 		        TagNode next = ptr.sibling;
-		        ArrayList<String> str = new ArrayList<>(Arrays.asList(ptr.tag.split(word)));
-		        str = parse(str, word);
+                ArrayList<String> parsing = parse(ptr.tag, word);
 
-		        // write rest of cancer tomorrow
+                // do first node non-iteratively - yep, this is beyond cancer
+                if(isWord(parsing.get(0), word)) {
+                    parent.firstChild = new TagNode(tag, new TagNode(parsing.remove(0), null, null), null);
+                    ptr = parent.firstChild;
+                } else {
+                    parent.firstChild = new TagNode(parsing.remove(0), null, null);
+                    ptr = parent.firstChild;
+                }
+
+                for(String str : parsing) {
+	                if(isWord(str, word)) {
+	                    ptr.sibling = new TagNode(tag, new TagNode(str, null, null), null);
+                    } else {
+	                    ptr.sibling = new TagNode(str, null, null);
+                    }
+
+                    ptr = ptr.sibling;
+                }
 
                 ptr.sibling = next;
 		        ptr = ptr.sibling;
@@ -284,10 +320,13 @@ public class Tree {
                 ptr = ptr.sibling;
             }
         }
+
+        if(replaceRoot)
+            root = parent.firstChild;
     }
 
 	public void addTag(String word, String tag) {
-        addTag(root, word, tag);
+	    addTag(new TagNode("", root, null), word, tag);
 	}
 	
 	/**

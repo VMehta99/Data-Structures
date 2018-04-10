@@ -46,31 +46,6 @@ public class LittleSearchEngine {
 	 * @throws FileNotFoundException If the document file is not found on disk
 	 */
 
-	public void printNew() {
-	    for(String key : keywordsIndex.keySet()) {
-	        ArrayList<Occurrence> instance = keywordsIndex.get(key);
-
-	        
-        }
-
-        System.out.println("New Words in HashMap: " + keywordsIndex.size());
-    }
-
-	public void print() {
-	    for(String key : keywordsIndex.keySet()) {
-	        System.out.println("Key: " + key);
-	        System.out.println("Value: ");
-
-	        for(Occurrence occ : keywordsIndex.get(key)) {
-                System.out.println(occ);
-            }
-
-            System.out.println("...................................................................................................................");
-        }
-
-        System.out.println("Words in HashMap: " + keywordsIndex.size());
-    }
-
 	public HashMap<String,Occurrence> loadKeywordsFromDocument(String docFile)
 	throws FileNotFoundException {
 	    HashMap<String, Occurrence> hashley = new HashMap<>();
@@ -234,50 +209,43 @@ public class LittleSearchEngine {
 	 *         frequencies. The result size is limited to 5 documents. If there are no matches, returns null.
 	 */
 	public ArrayList<String> top5search(String kw1, String kw2) {
-        ArrayList<String> results = new ArrayList<>();
-        ArrayList<Occurrence> first = keywordsIndex.get(kw1), second = keywordsIndex.get(kw2);
+	    ArrayList<String> results = new ArrayList<>();
+	    ArrayList<Occurrence> first = keywordsIndex.get(kw1), second = keywordsIndex.get(kw2);
 
-        int i = 0, j = 0, total = 0;
-
-        if (first == null && second == null) {
-            return reverse(results);
+	    if(first == null && second == null) {
+	        return null;
         } else if(first == null) {
-            while(i < second.size() && total < 5) {
-                results.add(second.get(i).document);
-                total++;
-            }
+	        for(int i = 0; i < second.size() && i < 4; i++)
+	            results.add(second.get(i).document);
 
             return reverse(results);
         } else if(second == null) {
-           while(i < first.size() && total < 5) {
-           		results.add(first.get(i).document);
-           		total++;
-		   }
+	         for(int i = 0; i < first.size() && i < 4; i++)
+	             results.add(first.get(i).document);
 
-		   return reverse(results);
+	         return reverse(results);
         } else {
-        	while(i < first.size() && j < second.size() && total < 5) {
-        		if(first.get(i).frequency >= second.get(j).frequency && !results.contains(first.get(i).document)) {
-        		    results.add(first.get(i).document);
-        		    total++;
-        		    i++;
-                } else if(first.get(i).frequency >= second.get(j).frequency && !results.contains(second.get(j).document)) {
-                    results.add(second.get(j).document);
-                    total++;
-                    j++;
-                } else if(first.get(i) == null && !results.contains(second.get(i).document)) {
-                    results.add(second.get(j).document);
-                    total++;
-                    j++;
-                } else if(second.get(j) == null && !results.contains(first.get(i).document)) {
-        		    results.add(first.get(i).document);
-        		    total++;
-        		    i++;
+	        while(results.size() < 5) {
+	            if(first.isEmpty() && second.isEmpty()) {
+                    return (results.isEmpty()) ? null : reverse(results);
+                } else if(first.isEmpty()) {
+	                while(!second.isEmpty() && results.size() < 5)
+                        results.add(second.remove(0).document);
+
+	                return reverse(results);
+                } else if(second.isEmpty()) {
+	                while(!first.isEmpty() && results.size() < 5)
+                        results.add(first.remove(0).document);
+
+	                return reverse(results);
                 } else {
-                    return reverse(results);
+	                if(first.get(0).frequency >= second.get(0).frequency)
+	                    results.add(first.remove(0).document);
+	                else
+	                    results.add(second.remove(0).document);
                 }
-			}
-		}
+            }
+        }
 
 		return reverse(results);
 	}

@@ -5,15 +5,17 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Driver {
-    public static void main(String[] args)
-            throws FileNotFoundException
-    {
-        LittleSearchEngine engine = new LittleSearchEngine();
-        engine.makeIndex("docs.txt", "WowCh1.txt");
+    public static void main(String args[]) throws IOException {
+        String docsFile = "docs.txt";
+        String noiseWords = "noisewords.txt";
 
-        engine.print();
-        engine.mergeKeywords(engine.loadKeywordsFromDocument("WowCh1.txt"));
+        LittleSearchEngine searchEngine = new LittleSearchEngine();
 
-        engine.print();
+        searchEngine.makeIndex(docsFile, noiseWords);
+
+        String kw1 = "deep";
+        String kw2 = "world";
+
+        System.out.println(searchEngine.top5search(kw1, kw2));
     }
 }

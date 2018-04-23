@@ -12,10 +12,15 @@ public class MST {
 	 * @return The initial partial tree list
 	 */
 	public static PartialTreeList initialize(Graph graph) {
-	
-		/* COMPLETE THIS METHOD */
+		PartialTreeList partials = new PartialTreeList();
 		
-		return null;
+		for(Vertex v : graph.vertices) {
+			PartialTree pt = new PartialTree(v);
+			
+		
+		}
+		
+		return partials;
 	}
 
 	/**

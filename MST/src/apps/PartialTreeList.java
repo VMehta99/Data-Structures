@@ -78,10 +78,11 @@ public class PartialTreeList implements Iterable<PartialTree> {
      */
     public PartialTree remove() 
     throws NoSuchElementException {
-    		
-    		/* COMPLETE THIS METHOD */
+    	Node temp = rear.next;
+    	rear.next = rear.next.next;
+    	size--;
     	
-    		return null;
+    	return temp.tree;
     }
 
     /**
@@ -93,9 +94,16 @@ public class PartialTreeList implements Iterable<PartialTree> {
      */
     public PartialTree removeTreeContaining(Vertex vertex) 
     throws NoSuchElementException {
-    		/* COMPLETE THIS METHOD */
+    	for(Node ptr = rear; ptr.next != rear; ptr = ptr.next) {
+    		if(ptr.next.tree.getRoot().name.equals(vertex.name)) {
+    			Node temp = ptr.next;
+    			ptr.next = ptr.next.next;
+    			
+    			return temp.tree;
+    		}
+    	}
     	
-    		return null;
+    	throw new NoSuchElementException("Element is not in graph.");
      }
     
     /**

@@ -94,10 +94,16 @@ public class PartialTreeList implements Iterable<PartialTree> {
      */
     public PartialTree removeTreeContaining(Vertex vertex) 
     throws NoSuchElementException {
-    	for(Node ptr = rear; ptr.next != rear; ptr = ptr.next) {
+    	boolean first = true;
+    	
+    	for(Node ptr = rear; ptr != rear && !first; ptr = ptr.next) {
+    		if(first) 
+    			first = false;
+    		
     		if(ptr.next.tree.getRoot().name.equals(vertex.name)) {
     			Node temp = ptr.next;
     			ptr.next = ptr.next.next;
+    			size--;
     			
     			return temp.tree;
     		}

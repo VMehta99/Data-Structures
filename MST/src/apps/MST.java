@@ -17,7 +17,7 @@ public class MST {
 		for(Vertex v : graph.vertices) {
 			PartialTree pt = new PartialTree(v);
 			
-		
+			
 		}
 		
 		return partials;

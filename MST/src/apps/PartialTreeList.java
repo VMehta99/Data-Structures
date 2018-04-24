@@ -102,6 +102,10 @@ public class PartialTreeList implements Iterable<PartialTree> {
     		
     		if(ptr.next.tree.getRoot().name.equals(vertex.name)) {
     			Node temp = ptr.next;
+    			
+    			if(rear == temp)
+    				rear = ptr;
+    			
     			ptr.next = ptr.next.next;
     			size--;
     			

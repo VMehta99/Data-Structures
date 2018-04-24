@@ -16,8 +16,12 @@ public class MST {
 		
 		for(Vertex v : graph.vertices) {
 			PartialTree pt = new PartialTree(v);
+			Vertex.Neighbor n = v.neighbors;
 			
-			
+			while(n != null) {
+				pt.getArcs().insert(new PartialTree.Arc(v, n.vertex, n.weight));
+				n = n.next;
+			}
 		}
 		
 		return partials;

@@ -2,6 +2,7 @@ package apps;
 
 import structures.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class MST {
 	
@@ -22,6 +23,8 @@ public class MST {
 				pt.getArcs().insert(new PartialTree.Arc(v, n.vertex, n.weight));
 				n = n.next;
 			}
+			
+			partials.append(pt);
 		}
 		
 		return partials;
@@ -34,9 +37,27 @@ public class MST {
 	 * @return Array list of all arcs that are in the MST - sequence of arcs is irrelevant
 	 */
 	public static ArrayList<PartialTree.Arc> execute(PartialTreeList ptlist) {
+		ArrayList<PartialTree.Arc> ret = new ArrayList<PartialTree.Arc>();
+		Iterator<PartialTree> iter = ptlist.iterator();
 		
-		/* COMPLETE THIS METHOD */
-
+		while(iter.hasNext()) {	
+			PartialTree ptx = iter.next();
+			
+			if(inHeap(ptx.getArcs(), ptx.getArcs().getMin().v2)) {
+				
+			}
+		}
+		
 		return null;
+	}
+	
+	private static boolean inHeap(MinHeap<PartialTree.Arc> heap, Vertex v) {
+		Iterator<PartialTree.Arc> iter = heap.iterator();
+		
+		while(iter.hasNext()) 
+			if(iter.next().v1.name.equals(v.name))
+				return true;
+		
+		return false;
 	}
 }

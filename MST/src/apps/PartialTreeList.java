@@ -78,11 +78,19 @@ public class PartialTreeList implements Iterable<PartialTree> {
      */
     public PartialTree remove() 
     throws NoSuchElementException {
-    	Node temp = rear.next;
-    	rear.next = rear.next.next;
-    	size--;
+    	PartialTree temp;
     	
-    	return temp.tree;
+    	if(size == 0) {
+    		throw new NoSuchElementException("No elements in graph");
+    	} else if(size == 1) {
+    		temp = rear.tree;
+    		rear = null;
+    	} else {
+    		temp = rear.next.tree;
+    		rear.next = rear.next.next;
+    	}
+    	
+    	return temp;
     }
 
     /**
@@ -94,27 +102,29 @@ public class PartialTreeList implements Iterable<PartialTree> {
      */
     public PartialTree removeTreeContaining(Vertex vertex) 
     throws NoSuchElementException {
-    	boolean first = true;
+    	Node ptr = rear;
     	
-    	for(Node ptr = rear; ptr != rear && !first; ptr = ptr.next) {
-    		if(first) 
-    			first = false;
-    		
-    		if(ptr.next.tree.getRoot().name.equals(vertex.name)) {
+    	do {
+    		if(inTree(ptr.next.tree, vertex)) {
     			Node temp = ptr.next;
-    			
-    			if(rear == temp)
-    				rear = ptr;
-    			
     			ptr.next = ptr.next.next;
     			size--;
     			
     			return temp.tree;
+    		} else {
+    			ptr = ptr.next;
     		}
-    	}
+    	} while(ptr != rear);
     	
-    	throw new NoSuchElementException("Element is not in graph.");
+    	throw new NoSuchElementException("Vertex not in graph.");
      }
+    
+    private boolean inTree(PartialTree tree, Vertex vertex) {
+    	while(vertex != vertex.parent)
+    		vertex = vertex.parent;
+    	
+    	return tree.getRoot().name.equals(vertex.name);
+    }
     
     /**
      * Gives the number of trees in this list

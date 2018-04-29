@@ -213,7 +213,7 @@ public class LittleSearchEngine {
 	    ArrayList<Occurrence> first = keywordsIndex.get(kw1), second = keywordsIndex.get(kw2);
 
 	    if(first == null && second == null) {
-	        return null;
+	        return results;
         } else if(first == null) {
 	        for(int i = 0; i < second.size() && i < 4; i++)
 	            results.add(second.get(i).document);

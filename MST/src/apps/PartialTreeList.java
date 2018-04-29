@@ -1,5 +1,6 @@
 package apps;
 
+import java.util.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -90,6 +91,7 @@ public class PartialTreeList implements Iterable<PartialTree> {
     		rear.next = rear.next.next;
     	}
     	
+    	size--;
     	return temp;
     }
 
@@ -103,27 +105,41 @@ public class PartialTreeList implements Iterable<PartialTree> {
     public PartialTree removeTreeContaining(Vertex vertex) 
     throws NoSuchElementException {
     	Node ptr = rear;
-    	
-    	do {
-    		if(inTree(ptr.next.tree, vertex)) {
-    			Node temp = ptr.next;
-    			ptr.next = ptr.next.next;
-    			size--;
-    			
-    			return temp.tree;
-    		} else {
-    			ptr = ptr.next;
-    		}
-    	} while(ptr != rear);
+
+    	if(size == 0) {
+    		throw new NoSuchElementException("Vertex is not in graph.");
+    	} else if(size == 1 && inTree(ptr.tree, vertex)) {
+    		size--;
+    		rear = null;
+    		return ptr.tree;
+    	} else {
+    		do {
+    			if(inTree(ptr.next.tree, vertex)) {
+    				Node ret = ptr.next;
+    				ptr.next = ptr.next.next;
+    				size--;
+    				
+    				if(rear ==  ret)
+    					rear = ptr;
+    				
+    				return ret.tree;
+    			} else {
+    				ptr = ptr.next;
+    			}
+    		} while(ptr != rear);		
+    	}
     	
     	throw new NoSuchElementException("Vertex not in graph.");
      }
     
     private boolean inTree(PartialTree tree, Vertex vertex) {
-    	while(vertex != vertex.parent)
-    		vertex = vertex.parent;
+    	Iterator<PartialTree.Arc> iter = tree.getArcs().iterator();
     	
-    	return tree.getRoot().name.equals(vertex.name);
+    	while(iter.hasNext()) 
+    		if(iter.next().v1.equals(vertex))
+    			return true;
+    	
+    	return false;
     }
     
     /**

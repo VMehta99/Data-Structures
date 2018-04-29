@@ -2,7 +2,6 @@ package apps;
 
 import structures.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class MST {
 	
@@ -37,27 +36,37 @@ public class MST {
 	 * @return Array list of all arcs that are in the MST - sequence of arcs is irrelevant
 	 */
 	public static ArrayList<PartialTree.Arc> execute(PartialTreeList ptlist) {
-		ArrayList<PartialTree.Arc> ret = new ArrayList<PartialTree.Arc>();
-		Iterator<PartialTree> iter = ptlist.iterator();
+		ArrayList<PartialTree.Arc> ret = new ArrayList<>();
 		
-		while(iter.hasNext()) {	
-			PartialTree ptx = iter.next();
+		while(ptlist.size() > 1) {
+			PartialTree tree = ptlist.remove();
+			MinHeap<PartialTree.Arc> heap = tree.getArcs();
 			
-			if(inHeap(ptx.getArcs(), ptx.getArcs().getMin().v2)) {
+			while(!heap.isEmpty()) {
+				PartialTree.Arc arc = heap.deleteMin();
 				
+				if(!belongsToTree(tree, arc.v2)) {
+					tree.merge(ptlist.removeTreeContaining(arc.v2));
+					ptlist.append(tree);
+					ret.add(arc);
+					
+					break;
+				}
 			}
 		}
 		
-		return null;
+		return ret;
 	}
 	
-	private static boolean inHeap(MinHeap<PartialTree.Arc> heap, Vertex v) {
-		Iterator<PartialTree.Arc> iter = heap.iterator();
+	public static boolean belongsToTree(PartialTree tree, Vertex v) {		
+		try {
+			PartialTreeList list = new PartialTreeList();
+			list.append(tree);
+			list.removeTreeContaining(v);
+		} catch(Exception e) {
+			return false;
+		}
 		
-		while(iter.hasNext()) 
-			if(iter.next().v1.name.equals(v.name))
-				return true;
-		
-		return false;
+		return true;
 	}
 }

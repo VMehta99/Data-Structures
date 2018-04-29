@@ -13,8 +13,8 @@ public class Driver {
 
         searchEngine.makeIndex(docsFile, noiseWords);
 
-        String kw1 = "deep";
-        String kw2 = "world";
+        String kw1 = "color";
+        String kw2 = "strange";
 
         System.out.println(searchEngine.top5search(kw1, kw2));
     }
